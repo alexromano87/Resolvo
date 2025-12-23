@@ -1,0 +1,31 @@
+// apps/backend/src/cartelle/dto/create-cartella.dto.ts
+import { IsString, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
+import { NoSpecialChars } from '../../common/validators/no-special-chars.decorator';
+
+export class CreateCartellaDto {
+  @IsOptional()
+  @IsUUID()
+  studioId?: string | null;
+
+  @IsString()
+  @IsNotEmpty()
+  @NoSpecialChars()
+  nome: string;
+
+  @IsOptional()
+  @IsString()
+  @NoSpecialChars()
+  descrizione?: string;
+
+  @IsOptional()
+  @IsString()
+  colore?: string;
+
+  @IsOptional()
+  @IsUUID()
+  praticaId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  cartellaParentId?: string;
+}
