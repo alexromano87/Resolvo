@@ -36,11 +36,46 @@ FROM nginx:alpine
 # Installa curl per health check
 RUN apk add --no-cache curl
 
-# Copia build artifacts
+# Copia build artifacts dal builder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copia configurazione Nginx custom
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Crea configurazione Nginx inline
+RUN echo 'server {\n\
+    listen 80;\n\
+    server_name _;\n\
+    root /usr/share/nginx/html;\n\
+    index index.html;\n\
+\n\
+    gzip on;\n\
+    gzip_vary on;\n\
+    gzip_min_length 1000;\n\
+    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss application/json application/javascript;\n\
+\n\
+    add_header X-Frame-Options "SAMEORIGIN" always;\n\
+    add_header X-Content-Type-Options "nosniff" always;\n\
+    add_header X-XSS-Protection "1; mode=block" always;\n\
+\n\
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {\n\
+        expires 1y;\n\
+        add_header Cache-Control "public, immutable";\n\
+        access_log off;\n\
+    }\n\
+\n\
+    location / {\n\
+        try_files $uri $uri/ /index.html;\n\
+    }\n\
+\n\
+    location /health {\n\
+        access_log off;\n\
+        return 200 "healthy\n";\n\
+        add_header Content-Type text/plain;\n\
+    }\n\
+\n\
+    location ~ /\. {\n\
+        deny all;\n\
+        access_log off;\n\
+    }\n\
+}' > /etc/nginx/conf.d/default.conf
 
 # Esponi porta 80
 EXPOSE 80
