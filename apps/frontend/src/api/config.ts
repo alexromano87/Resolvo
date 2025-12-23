@@ -1,8 +1,47 @@
 // src/api/config.ts
 // Configurazione centralizzata per le API
 
-export const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:3000';
+/**
+ * Rileva automaticamente l'ambiente e configura l'URL API
+ */
+function getApiBaseUrl(): string {
+  // 1. Se definito in .env, usa quello (priorità massima)
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  // 2. Rileva automaticamente in base all'hostname
+  const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+
+  // Localhost / Development
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:3000';
+  }
+
+  // Production - stesso dominio
+  // Se frontend e backend sono sullo stesso server
+  if (hostname === '3.120.81.201') {
+    return `${protocol}//${hostname}:3000`;
+  }
+
+  // Production - dominio custom
+  // Se hai un dominio tipo resolvo.com
+  if (hostname.includes('resolvo')) {
+    return `${protocol}//api.${hostname}`;
+  }
+
+  // Default fallback
+  return 'http://localhost:3000';
+}
+
+export const API_BASE_URL = getApiBaseUrl();
+
+// Debug: mostra in console quale URL viene usato (solo in development)
+if (import.meta.env.DEV) {
+  console.log('🔧 API Base URL:', API_BASE_URL);
+  console.log('🌍 Environment:', import.meta.env.MODE);
+}
 
 /**
  * Classe per errori API con status code

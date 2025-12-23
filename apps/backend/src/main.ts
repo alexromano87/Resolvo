@@ -7,9 +7,45 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
+  // Rileva ambiente e configura CORS automaticamente
+  const nodeEnv = configService.get<string>('NODE_ENV', 'development');
+  const isProduction = nodeEnv === 'production';
+
+  // Configurazione CORS dinamica
+  const allowedOrigins = [
+    'http://localhost:5173',           // Frontend dev Vite
+    'http://localhost:3000',           // Frontend dev alternativo
+    'http://127.0.0.1:5173',          // Localhost alternativo
+    configService.get<string>('FRONTEND_URL'), // Da .env se presente
+  ];
+
+  // In production, aggiungi dominio server
+  if (isProduction) {
+    const serverIp = '3.120.81.201';
+    allowedOrigins.push(
+      `http://${serverIp}`,
+      `https://${serverIp}`,
+      'http://resolvo.com',     // Se hai dominio
+      'https://resolvo.com',
+    );
+  }
+
   app.enableCors({
-    origin: configService.get<string>('FRONTEND_URL', 'http://localhost:5173'),
+    origin: (origin, callback) => {
+      // Permetti richieste senza origin (Postman, curl, etc.)
+      if (!origin) return callback(null, true);
+
+      // Controlla se origin è nella lista
+      if (allowedOrigins.some(allowed => allowed && origin.startsWith(allowed))) {
+        callback(null, true);
+      } else {
+        console.warn(`⚠️  CORS blocked origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Validazione globale con trasformazione automatica dei tipi
@@ -27,9 +63,14 @@ async function bootstrap() {
   const port = configService.get<number>('PORT', 3000);
   await app.listen(port);
 
-  console.log(`🚀 Backend running on http://localhost:${port}`);
-  console.log(
-    `📦 Environment: ${configService.get<string>('NODE_ENV', 'development')}`,
-  );
+  // Log info ambiente
+  console.log(`\n${'='.repeat(50)}`);
+  console.log(`🚀 RESOLVO Backend Started`);
+  console.log(`${'='.repeat(50)}`);
+  console.log(`🌍 Environment: ${nodeEnv}`);
+  console.log(`🔗 Running on: http://localhost:${port}`);
+  console.log(`📡 CORS Origins: ${allowedOrigins.filter(Boolean).join(', ')}`);
+  console.log(`📊 Database: ${configService.get('DB_HOST')}:${configService.get('DB_PORT')}`);
+  console.log(`${'='.repeat(50)}\n`);
 }
 bootstrap();
