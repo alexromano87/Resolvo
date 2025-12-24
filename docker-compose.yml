@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 version: '3.8'
 
+=======
+>>>>>>> 879b8c3 (aggiornamenti vari)
 services:
   # ===================================
   # Database MySQL
@@ -21,7 +24,11 @@ services:
       - resolvo-network
     command: --default-authentication-plugin=mysql_native_password
     healthcheck:
+<<<<<<< HEAD
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password_root!"]
+=======
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot!"]
+>>>>>>> 879b8c3 (aggiornamenti vari)
       interval: 10s
       timeout: 5s
       retries: 5
