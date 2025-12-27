@@ -39,6 +39,7 @@ export interface Alert {
   dataCreazione: Date;
   dataAggiornamento: Date;
   dataChiusura: Date | null;
+  clienteCanClose?: boolean;
 }
 
 export interface CreateAlertDto {
@@ -49,6 +50,7 @@ export interface CreateAlertDto {
   modalitaNotifica?: AlertModalitaNotifica;
   dataScadenza: Date | string;
   giorniAnticipo?: number;
+  clienteCanClose?: boolean;
 }
 
 export interface UpdateAlertDto {
@@ -59,6 +61,7 @@ export interface UpdateAlertDto {
   dataScadenza?: Date | string;
   giorniAnticipo?: number;
   stato?: AlertStato;
+  clienteCanClose?: boolean;
 }
 
 export interface AddMessaggioAlertDto {

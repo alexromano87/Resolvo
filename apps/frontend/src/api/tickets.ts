@@ -16,6 +16,7 @@ export interface MessaggioTicket {
 export interface Ticket {
   id: string;
   numeroTicket: string;
+  alertId?: string | null;
   praticaId: string | null;
   pratica?: {
     id: string;

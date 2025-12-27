@@ -12,6 +12,8 @@ import { Pratica } from '../pratiche/pratica.entity';
 import { Avvocato } from '../avvocati/avvocato.entity';
 import { EmailService } from '../notifications/email.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { AlertsService } from '../alerts/alerts.service';
+import { CreateAlertDto } from '../alerts/dto/create-alert.dto';
 import type { CurrentUserData } from '../auth/current-user.decorator';
 import { normalizePagination, type PaginationOptions } from '../common/pagination';
 
@@ -28,6 +30,7 @@ export class TicketsService {
     private avvocatiRepository: Repository<Avvocato>,
     private readonly emailService: EmailService,
     private readonly notificationsService: NotificationsService,
+    private readonly alertsService: AlertsService,
   ) {}
 
   async create(createTicketDto: CreateTicketDto): Promise<Ticket> {
@@ -38,6 +41,11 @@ export class TicketsService {
     });
     const saved = await this.ticketRepository.save(ticket);
     await this.sendTicketEmail(saved);
+    const alert = await this.triggerTicketAlert(saved);
+    if (alert) {
+      saved.alertId = alert.id;
+      await this.ticketRepository.save(saved);
+    }
     return saved;
   }
 
@@ -352,6 +360,29 @@ export class TicketsService {
       subject,
       text,
     });
+  }
+
+  private async triggerTicketAlert(ticket: Ticket): Promise<{ id: string } | null> {
+    if (!ticket.praticaId) return null;
+
+    const alertPayload: CreateAlertDto = {
+      studioId: ticket.studioId ?? null,
+      praticaId: ticket.praticaId,
+      titolo: `Ticket cliente: ${ticket.oggetto}`,
+      descrizione: ticket.descrizione,
+      destinatario: 'studio',
+      modalitaNotifica: 'popup',
+      dataScadenza: new Date().toISOString(),
+      giorniAnticipo: 0,
+      clienteCanClose: true,
+    };
+
+    try {
+      return await this.alertsService.create(alertPayload);
+    } catch (error) {
+      console.error('Errore creazione alert per ticket cliente', error);
+      return null;
+    }
   }
 
   private async applyAccessFilter(

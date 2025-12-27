@@ -1,13 +1,26 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Pratica } from '../pratiche/pratica.entity';
 import { Cliente } from '../clienti/cliente.entity';
 import { Studio } from '../studi/studio.entity';
 import { User } from '../users/user.entity';
 import { Debitore } from '../debitori/debitore.entity';
 import { Avvocato } from '../avvocati/avvocato.entity';
+import { Documento } from '../documenti/documento.entity';
+import { MovimentoFinanziario } from '../movimenti-finanziari/movimento-finanziario.entity';
 import type { CurrentUserData } from '../auth/current-user.decorator';
+
+type SharedTimelineEventType = 'fase' | 'opposizione' | 'pignoramento';
+
+interface SharedTimelineEvent {
+  praticaId: string;
+  praticaLabel: string;
+  title: string;
+  date: string;
+  detail?: string;
+  tipo: SharedTimelineEventType;
+}
 
 export interface DashboardStats {
   numeroPratiche: number;
@@ -125,6 +138,10 @@ export class DashboardService {
     private debitoreRepository: Repository<Debitore>,
     @InjectRepository(Avvocato)
     private avvocatoRepository: Repository<Avvocato>,
+    @InjectRepository(Documento)
+    private documentiRepository: Repository<Documento>,
+    @InjectRepository(MovimentoFinanziario)
+    private movimentiRepository: Repository<MovimentoFinanziario>,
   ) {}
 
   async getStats(
@@ -392,6 +409,130 @@ export class DashboardService {
       configurazione: config,
     };
 
+    const praticheEnabled = Object.values(config.pratiche || {}).some(Boolean);
+    let praticheData: Pratica[] = [];
+    const praticaLabels = new Map<string, string>();
+
+    if (praticheEnabled) {
+      praticheData = await this.praticheRepository.find({
+        where: { clienteId, attivo: true },
+        relations: ['cliente', 'debitore'],
+        order: { createdAt: 'DESC' },
+      });
+      praticheData.forEach((pratica) => {
+        praticaLabels.set(pratica.id, this.buildPraticaLabel(pratica));
+      });
+      result.pratiche = praticheData.map((pratica) => ({
+        id: pratica.id,
+        titolo: praticaLabels.get(pratica.id) ?? this.buildPraticaLabel(pratica),
+        cliente: pratica.cliente?.ragioneSociale || 'Cliente',
+        debitore: this.buildPraticaDebitoreLabel(pratica),
+        faseId: pratica.faseId,
+        aperta: pratica.aperta,
+        esito: pratica.esito,
+        capitale: Number(pratica.capitale ?? 0),
+        importoRecuperatoCapitale: Number(pratica.importoRecuperatoCapitale ?? 0),
+        anticipazioni: Number(pratica.anticipazioni ?? 0),
+        importoRecuperatoAnticipazioni: Number(pratica.importoRecuperatoAnticipazioni ?? 0),
+        compensiLegali: Number(pratica.compensiLegali ?? 0),
+        compensiLiquidati: Number(pratica.compensiLiquidati ?? 0),
+        interessi: Number(pratica.interessi ?? 0),
+        interessiRecuperati: Number(pratica.interessiRecuperati ?? 0),
+        dataAffidamento: pratica.dataAffidamento
+          ? pratica.dataAffidamento.toISOString?.() ?? pratica.dataAffidamento
+          : null,
+        dataChiusura: pratica.dataChiusura ? pratica.dataChiusura.toISOString?.() ?? pratica.dataChiusura : null,
+        riferimentoCredito: pratica.riferimentoCredito,
+        storico: pratica.storico,
+        opposizione: pratica.opposizione,
+        pignoramento: pratica.pignoramento,
+      }));
+    }
+
+    const praticaIds = praticheData.map((p) => p.id);
+
+    if (config.pratiche.documenti && praticaIds.length > 0) {
+      const documenti = await this.documentiRepository.find({
+        where: { praticaId: In(praticaIds), attivo: true },
+        order: { dataCreazione: 'DESC' },
+      });
+      result.documenti = documenti.map((doc) => {
+        const praticaId = doc.praticaId;
+        const praticaLabel =
+          praticaId && praticaLabels.has(praticaId) ? praticaLabels.get(praticaId)! : 'Pratica';
+        return {
+          id: doc.id,
+          nome: doc.nome,
+          descrizione: doc.descrizione,
+          tipo: doc.tipo,
+          praticaId: doc.praticaId,
+          praticaLabel,
+          dataCreazione: doc.dataCreazione,
+          caricatoDa: doc.caricatoDa,
+        };
+      });
+    }
+
+    if (config.pratiche.movimentiFinanziari && praticaIds.length > 0) {
+      const movimenti = await this.movimentiRepository.find({
+        where: { praticaId: In(praticaIds) },
+        order: { data: 'DESC', createdAt: 'DESC' },
+      });
+      result.movimentiFinanziari = movimenti.map((mov) => {
+        const movPraticaId = mov.praticaId;
+        return {
+          id: mov.id,
+          tipo: mov.tipo,
+          importo: Number(mov.importo ?? 0),
+          data: mov.data,
+          oggetto: mov.oggetto,
+          praticaId: mov.praticaId,
+          praticaLabel: movPraticaId ? praticaLabels.get(movPraticaId) ?? 'Pratica' : 'Pratica',
+        };
+      });
+    }
+
+    if (config.pratiche.timeline && praticheData.length > 0) {
+      const timeline: SharedTimelineEvent[] = [];
+      praticheData.forEach((pratica) => {
+        const label = praticaLabels.get(pratica.id) ?? this.buildPraticaLabel(pratica);
+        (pratica.storico || []).forEach((fase) => {
+          if (!fase.dataInizio) return;
+          timeline.push({
+            praticaId: pratica.id,
+            praticaLabel: label,
+            title: fase.faseNome,
+            date: fase.dataInizio,
+            detail: fase.dataFine
+              ? `Fino al ${new Date(fase.dataFine).toLocaleDateString('it-IT')}`
+              : 'In corso',
+            tipo: 'fase',
+          });
+        });
+        if (pratica.opposizione?.dataEsito) {
+          timeline.push({
+            praticaId: pratica.id,
+            praticaLabel: label,
+            title: 'Esito opposizione',
+            date: pratica.opposizione.dataEsito,
+            detail: pratica.opposizione.note,
+            tipo: 'opposizione',
+          });
+        }
+        if (pratica.pignoramento?.dataNotifica) {
+          timeline.push({
+            praticaId: pratica.id,
+            praticaLabel: label,
+            title: 'Notifica pignoramento',
+            date: pratica.pignoramento.dataNotifica,
+            detail: pratica.pignoramento.tipo,
+            tipo: 'pignoramento',
+          });
+        }
+      });
+      result.timeline = timeline.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    }
+
     // Aggiungi stats se abilitato
     if (config.dashboard.stats) {
       result.stats = await this.getStats(clienteId);
@@ -506,6 +647,23 @@ export class DashboardService {
         ultimePraticheCreate,
       },
     };
+  }
+
+  private buildPraticaLabel(pratica: Pratica | null): string {
+    if (!pratica) return 'Pratica';
+    const cliente = pratica.cliente?.ragioneSociale || 'Cliente';
+    const debitore =
+      pratica.debitore?.ragioneSociale ||
+      [pratica.debitore?.nome, pratica.debitore?.cognome].filter(Boolean).join(' ').trim() ||
+      'Debitore';
+    return `${cliente} vs ${debitore}`;
+  }
+
+  private buildPraticaDebitoreLabel(pratica: Pratica): string {
+    if (!pratica.debitore) return 'Debitore';
+    if (pratica.debitore.ragioneSociale) return pratica.debitore.ragioneSociale;
+    const nome = [pratica.debitore.nome, pratica.debitore.cognome].filter(Boolean).join(' ').trim();
+    return nome || 'Debitore';
   }
 
   private async canAvvocatoSeeAll(user: CurrentUserData): Promise<boolean> {

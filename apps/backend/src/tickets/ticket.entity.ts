@@ -42,6 +42,9 @@ export class Ticket {
   studio: Studio | null;
 
   @Column({ type: 'uuid', nullable: true })
+  alertId: string | null;
+
+  @Column({ type: 'uuid', nullable: true })
   praticaId: string | null;
 
   @ManyToOne(() => Pratica, { eager: true, nullable: true })

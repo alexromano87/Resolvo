@@ -10,7 +10,6 @@ import {
   Query,
   ParseBoolPipe,
   UseGuards,
-  ForbiddenException,
 } from '@nestjs/common';
 import { AlertsService } from './alerts.service';
 import { CreateAlertDto } from './dto/create-alert.dto';
@@ -85,9 +84,6 @@ export class AlertsController {
     @Param('id') id: string,
     @Body() updateAlertDto: UpdateAlertDto,
   ) {
-    if (updateAlertDto.stato && user.ruolo === 'cliente') {
-      throw new ForbiddenException('Solo lo studio legale può modificare lo stato degli alert');
-    }
     return this.alertsService.update(id, updateAlertDto, user);
   }
 
@@ -117,17 +113,11 @@ export class AlertsController {
 
   @Patch(':id/chiudi')
   chiudiAlert(@CurrentUser() user: CurrentUserData, @Param('id') id: string) {
-    if (user.ruolo === 'cliente') {
-      throw new ForbiddenException('Solo lo studio legale può chiudere l\'alert');
-    }
     return this.alertsService.update(id, { stato: 'chiuso' }, user);
   }
 
   @Patch(':id/riapri')
   riapriAlert(@CurrentUser() user: CurrentUserData, @Param('id') id: string) {
-    if (user.ruolo === 'cliente') {
-      throw new ForbiddenException('Solo lo studio legale può riaprire l\'alert');
-    }
     return this.alertsService.update(id, { stato: 'in_gestione' }, user);
   }
 }

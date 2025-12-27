@@ -1,5 +1,5 @@
 // apps/backend/src/alerts/dto/create-alert.dto.ts
-import { IsString, IsUUID, IsEnum, IsDateString, IsInt, Min, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsUUID, IsEnum, IsDateString, IsInt, Min, IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
 import type { AlertDestinatario, AlertModalitaNotifica } from '../alert.entity';
 import { NoSpecialChars } from '../../common/validators/no-special-chars.decorator';
 
@@ -36,4 +36,8 @@ export class CreateAlertDto {
   @Min(0)
   @IsOptional()
   giorniAnticipo?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  clienteCanClose?: boolean;
 }

@@ -21,6 +21,8 @@ import { AuditLogModule } from './audit/audit-log.module';
 import { ExportModule } from './export/export.module';
 import { ImportModule } from './import/import.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RateLimitGuard } from './common/guards/rate-limit.guard';
 
 @Module({
   imports: [
@@ -69,6 +71,11 @@ import { NotificationsModule } from './notifications/notifications.module';
     ImportModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RateLimitGuard,
+    },
+  ],
 })
 export class AppModule {}

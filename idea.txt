@@ -1,0 +1,143 @@
+Vorrei realizzare un'applicazione o piattaforma web (nel prosieguo APP) per la gestione del
+recupero crediti. Come avvocato di un'azienda gestisco appunto il recupero dei crediti.
+FASI DEL PROCESSO DI RECUPERO CREDITI
+la società cliente invia mail allo studio legale per richiesta di apertura pratica indicando il
+debitore e importo del credito. Alla mail allega: il mastrino contabile con indicazione delle
+fatture insolute, scadenza fattura e eventuali pagamenti parziali; le fatture emesse al cliente
+debitore;
+1. lo studio legale apre la pratica assegnando un numero progressivo;
+2. lo studio assegna la pratica ad un legale (collaboratore interno);
+3. si apre la fase stragiudiziale: il legale incaricato predispone ed invia diFida stragiudiziale
+di pagamento al debitore, sia a mezzo pec che a mezzo raccomandata a/r;
+4. dopo invio diFida si possono veriﬁcare tre ipotesi:
+a. il debitore paga: in questo caso è la società cliente che comunica allo studio
+legale il pagamento. Il legale incaricato registra il pagamento e chiude la
+pratica;
+b. il debitore fa una proposta: in questo caso il legale incaricato comunica la
+proposta alla società cliente e si avvia la trattativa che può chiudersi con
+accordo o senza accordo. In caso di mancato accordo si passa alla fase
+successiva 6.;
+5. il debitore non paga (non riscontra o non c'è accordo dopo proposta): si avvia la fase
+giudiziale;
+6. la fase giudiziale si avvia con il deposito del ricorso per decreto ingiuntivo presso il
+Tribunale competente che si conclude con decreto ingiunto che può essere:
+a. provvisoriamente esecutivo;
+b. senza provvisoria esecuzione;
+7. in caso di decreto ingiuntivo provvisoriamente esecutivo, il legale incaricato procede alla
+notiﬁca del decreto ingiuntivo e del precetto;
+8. in caso di decreto ingiuntivo senza provvisoria esecuzione, il legale incaricato procede
+alla notiﬁca del solo decreto ingiuntivo;
+9. in entrambi i casi (decreto ingiuntivo con o senza provvisoria esecutività), si possono
+veriﬁcare due ipotesi:
+a. il debitore ingiunto non propone opposizione;
+b. il debitore ingiunto propone opposizione;
+10. se il debitore ingiunto non propone opposizione o se propone opposizione ad un decreto
+ingiuntivo provvisoriamente esecutivo, il legale incaricato avvia la fase esecutiva;
+11. l’opposizione apre comunque la fase processuale che può concludersi con esito
+favorevole (rigetto opposizione), parzialmente sfavorevole (accoglimento parziale),
+totalmente favorevole (accoglimento integrale opposizione);
+12. la fase esecutiva, che può essere avviata anche nel corso del procedimento di
+opposizione a seguito del pronunciamento sulla richiesta di concessione della
+
+provvisoria esecuzione della società opposta, viene avviata con la notiﬁca del
+pignoramento;
+13. il pignoramento può essere:
+a. mobiliare, presso il debitore;
+b. mobiliare, presso terzi;
+c. immobiliare su beni del debitore;
+14. a seguito della notiﬁca del pignoramento possono veriﬁcarsi tre ipotesi:
+a. il debitore non si oppone, ma formula una proposta che viene accettata dalla
+società cliente che deﬁnisce la posizione;
+b. il debitore non si oppone né formula proposta. Possono veriﬁcarsi due ipotesi:
+i. in caso di individuazione di beni esecutabili, si iscrive a ruolo il
+pignoramento;
+ii. in caso di beni non aggredibili, si desiste e non si procede a iscrizione a
+ruolo del pignoramento;
+iii. il debitore si oppone: si apre il procedimento di opposizione
+all’esecuzione che può concludersi con esito favorevole (rigetto
+opposizione), parzialmente sfavorevole (accoglimento parziale),
+totalmente favorevole (accoglimento integrale opposizione);
+15. Il procedimento di recupero credito si può conclude con:
+a. recupero integrale del credito, degli interessi e delle spese legali;
+b. recupero parziale del credito, degli interessi e delle spese legali.
+
+OBIETTIVI E FUNZIONALITA’ DELLA APP
+Gli obiettivi e le funzionalità della APP sono:
+I. in generale, digitalizzare e velocizzare il processo di recupero crediti;
+II. creare anagraﬁca società cliente con possibilità di inserire:
+o dati aziendali: sede legale, sede operativa
+o tipologia: impresa individuale ordinaria o agricola, società di capitali (srl, spa,
+scpa) ordinaria o agricola, società di persone (snc, sas) ordinaria o agricola
+o referente
+o dati di contatto
+III. creare anagraﬁca debitore con possibilità di inserire
+o dati aziendali: sede legale, sede operativa
+o tipologia: impresa individuale ordinaria o agricola, società di capitali (srl, spa,
+scpa) ordinaria o agricola, società di persone (snc, sas) ordinaria o agricola
+o referente
+o dati di contatto
+IV. aprire una pratica collegata alla società cliente con possibilità di inserire:
+o debitore
+o importo capitale
+
+o interessi
+o anticipazioni
+o compensi legali
+V. caricare nell’ambiente della pratica un archivio documentale dove poter creare cartelle e
+sottocartelle e caricare ﬁle in qualsiasi formato (pdf, word, jpg, excel, csv, xml);
+VI. possibilità per il legale incaricato di scadenzare adempimenti e attività da fare a suo carico
+o a carico del cliente, con le seguenti caratteristiche:
+a. il legale incaricato che inserisce un adempimento o un’attività, deve poter attivare e
+conﬁgurare un alert sull’adempimento o sull’attività da fare con possibilità di inserire:
+§ destinatario (se stesso o la società cliente)
+§ scadenza
+§ modalità di invio (popup all’interno dell’ambiente della APP) e termine a
+giorni (ad esempio, 3 giorni prima della scadenza, 7 giorni prima della
+scadenza ecc.)
+b. l’apertura dell’alert genera lo stato “in gestione” di cui devono avere evidenza,
+nell’ambiente della APP, sia il legale incaricato che il destinatario;
+c. ci deve essere una chat interna legata all’alert dove legale incaricato e società cliente
+dialogano per gestire l’alter ﬁno alla sua chiusura;
+d. solo il legale interno può modiﬁcare lo stato dell’alert da “in gestione” a “chiuso”;
+VII. possibilità per la società cliente di attivare un ticket per richiesta di intervento dello studio
+legale su qualsiasi argomento. Il ticket genera un alert verso lo studio che viene gestita
+come l’alert attivato dal legale incarico di cui al precedente punto VI, con la diFerenza che
+in questa caso sia la società cliente che il legale incaricato possono modiﬁcare lo stato
+dell’alert da “in gestione” a chiuso
+VIII. avere evidenza e visualizzare lo stato di ogni singola pratica;
+IX.
+avere evidenza e visualizzare lo stato complessivo delle pratiche “aperta” o “chiusa”;
+X. avere la possibilità di fare una ricerca selettiva sulla società cliente e su tutte le sue
+pratiche aFidate allo studio legale, relativamente a tutte le voci della APP come ad
+esempio:
+o pratiche aperte
+o pratiche chiuse
+o importo complessivo dei crediti aFidati allo studio per il recupero, con
+possibilità di selezionare, singolarmente o congiuntamente, “importo capitale”,
+“interessi”, “anticipazioni” o “compensi legali”
+o importo recuperato, con possibilità di selezionare singolarmente o
+congiuntamente, “importo capitale”, “interessi”, “anticipazioni” o “compensi
+legali”
+o importo da recupere (distinguendo tra “importo capitale”, “interessi”,
+“anticipazioni” o “compensi legali”) complessivo o su singola pratica
+XI. gant su singola pratica in base alle scadenze inserite
+
+XII.
+
+XIII.
+
+dashboard dinamica (ovvero con possibilità di accedere al dato o all’informazione
+cliccando sulla voce), riepilogativa di tutte le informazioni e con valutazione della
+performance basata sui seguenti KPI:
+o numero pratiche;
+o pratiche aFidate e pratiche chiuse:
+§ con esito negativo (nessun recupero)
+§ con esito positivo, distinguendo in quest’ultimo caso:
+• recupero capitale totale o parziale
+• recupero interessi totale o parziale
+• recupero compensi legali totale o parziale
+condividere (solo in visualizzazione) con la società cliente la dashboard e le
+informazioni relative alle pratiche gestite dallo studio legale, con possibilità per lo
+studio legale di selezionare le informazioni/voci da condividere con la società cliente
+
+

@@ -1,5 +1,5 @@
 // apps/backend/src/alerts/dto/update-alert.dto.ts
-import { IsString, IsEnum, IsDateString, IsInt, Min, IsOptional } from 'class-validator';
+import { IsString, IsEnum, IsDateString, IsInt, Min, IsOptional, IsBoolean } from 'class-validator';
 import type { AlertStato, AlertDestinatario, AlertModalitaNotifica } from '../alert.entity';
 import { NoSpecialChars } from '../../common/validators/no-special-chars.decorator';
 
@@ -34,4 +34,8 @@ export class UpdateAlertDto {
   @IsEnum(['in_gestione', 'chiuso'])
   @IsOptional()
   stato?: AlertStato;
+
+  @IsBoolean()
+  @IsOptional()
+  clienteCanClose?: boolean;
 }

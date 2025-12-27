@@ -54,6 +54,9 @@ export class Alert {
   @Column({ type: 'enum', enum: ['popup'], default: 'popup' })
   modalitaNotifica: AlertModalitaNotifica;
 
+  @Column({ type: 'boolean', default: false })
+  clienteCanClose: boolean;
+
   @Column({ type: 'datetime' })
   dataScadenza: Date;
 

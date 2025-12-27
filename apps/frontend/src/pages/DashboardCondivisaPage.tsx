@@ -10,7 +10,14 @@ import {
   Eye,
   Lock,
 } from 'lucide-react';
-import { fetchDashboardCondivisa, type DashboardCondivisa } from '../api/dashboard';
+import {
+  fetchDashboardCondivisa,
+  type DashboardCondivisa,
+  type DashboardCondivisaDocumento,
+  type DashboardCondivisaMovimento,
+  type DashboardCondivisaPratica,
+  type DashboardTimelineEvent,
+} from '../api/dashboard';
 
 export function DashboardCondivisaPage() {
   const [searchParams] = useSearchParams();
@@ -85,7 +92,22 @@ export function DashboardCondivisaPage() {
     );
   }
 
-  const { cliente, configurazione, stats, kpi } = data;
+  const {
+    cliente,
+    configurazione,
+    stats,
+    kpi,
+    pratiche,
+    documenti,
+    movimentiFinanziari,
+    timeline,
+  } = data;
+
+  const formatSharedDate = (value?: string | null) =>
+    value ? new Date(value).toLocaleDateString('it-IT') : 'N/D';
+
+  const formatPraticaStatus = (pratica: DashboardCondivisaPratica) =>
+    pratica.aperta ? 'Aperta' : 'Chiusa';
 
   return (
     <div className="min-h-screen bg-transparent p-4 md:p-8">
@@ -380,6 +402,275 @@ export function DashboardCondivisaPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {configurazione.pratiche.elenco && (
+          <div className="space-y-4">
+            <div className="wow-panel p-5">
+              <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                    Pratiche condivise
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Visualizza le pratiche affidate con i principali riferimenti economici e procedurali.
+                  </p>
+                </div>
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  {pratiche?.length ?? 0} pratiche incluse
+                </span>
+              </div>
+
+              {pratiche && pratiche.length > 0 ? (
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                  {pratiche.map((pratica) => (
+                    <div
+                      key={pratica.id}
+                      className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/60"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                            {pratica.titolo}
+                          </p>
+                          {pratica.riferimentoCredito && (
+                            <p className="mt-1 text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                              Rif: {pratica.riferimentoCredito}
+                            </p>
+                          )}
+                        </div>
+                        <span
+                          className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
+                            pratica.aperta
+                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200'
+                              : 'bg-slate-100 text-slate-600 dark:bg-slate-900/40 dark:text-slate-300'
+                          }`}
+                        >
+                          {formatPraticaStatus(pratica)}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 grid gap-3 text-xs text-slate-600 dark:text-slate-400">
+                        <div className="flex items-center justify-between">
+                          <span>Capitale affidato</span>
+                          <span className="font-semibold text-slate-900 dark:text-slate-50">
+                            {formatCurrency(pratica.capitale)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>Capitale recuperato</span>
+                          <span className="font-semibold text-slate-900 dark:text-slate-50">
+                            {formatCurrency(pratica.importoRecuperatoCapitale)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>Interessi</span>
+                          <span className="font-semibold text-slate-900 dark:text-slate-50">
+                            {formatCurrency(pratica.interessi)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>Compensi</span>
+                          <span className="font-semibold text-slate-900 dark:text-slate-50">
+                            {formatCurrency(pratica.compensiLegali)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>Data affidamento</span>
+                          <span>{formatSharedDate(pratica.dataAffidamento)}</span>
+                        </div>
+                      </div>
+
+                      {configurazione.pratiche.dettagli && (
+                        <div className="mt-4 space-y-2 border-t border-slate-100 pt-3 text-[11px] text-slate-500 dark:border-slate-800 dark:text-slate-400">
+                          {pratica.opposizione?.esito && (
+                            <p>
+                              Opposizione: {pratica.opposizione.esito}{' '}
+                              {pratica.opposizione.dataEsito && (
+                                <span className="text-slate-400">
+                                  ({formatSharedDate(pratica.opposizione.dataEsito)})
+                                </span>
+                              )}
+                            </p>
+                          )}
+                          {pratica.pignoramento?.tipo && (
+                            <p>
+                              Pignoramento: {pratica.pignoramento.tipo}{' '}
+                              {pratica.pignoramento.dataNotifica && (
+                                <span className="text-slate-400">
+                                  ({formatSharedDate(pratica.pignoramento.dataNotifica)})
+                                </span>
+                              )}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+                  Nessuna pratica condivisa disponibile.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {configurazione.pratiche.documenti && (
+          <div className="space-y-4">
+            <div className="wow-panel p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                    Documenti condivisi
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    I file allegati alle pratiche che lo studio ha scelto di mostrarti.
+                  </p>
+                </div>
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  {documenti?.length ?? 0} elementi
+                </span>
+              </div>
+
+              {documenti && documenti.length > 0 ? (
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  {documenti.slice(0, 6).map((doc) => (
+                    <div
+                      key={doc.id}
+                      className="rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/60"
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                          {doc.nome}
+                        </p>
+                        <span className="text-[11px] font-semibold uppercase text-slate-500 dark:text-slate-400">
+                          {doc.tipo}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                        {doc.praticaLabel}
+                      </p>
+                      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                        {doc.descrizione || 'Nessuna descrizione'}
+                      </p>
+                      <p className="mt-3 text-[11px] text-slate-400">
+                        {formatSharedDate(doc.dataCreazione)} • {doc.caricatoDa || 'Studio'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+                  Nessun documento condiviso.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {configurazione.pratiche.movimentiFinanziari && (
+          <div className="space-y-4">
+            <div className="wow-panel p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                    Movimenti finanziari
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Entrate e uscite registrate sulle pratiche condivise.
+                  </p>
+                </div>
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  {movimentiFinanziari?.length ?? 0} movimenti
+                </span>
+              </div>
+
+              {movimentiFinanziari && movimentiFinanziari.length > 0 ? (
+                <div className="mt-4 space-y-3">
+                  {movimentiFinanziari.slice(0, 6).map((movimento) => (
+                    <div
+                      key={movimento.id}
+                      className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 text-xs text-slate-600 dark:border-slate-800 dark:text-slate-300"
+                    >
+                      <div>
+                        <p className="font-semibold text-slate-900 dark:text-slate-50">
+                          {movimento.tipo.replace(/_/g, ' ')}
+                        </p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                          {movimento.praticaLabel}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-slate-900 dark:text-slate-50">
+                          {formatCurrency(movimento.importo)}
+                        </p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                          {formatSharedDate(movimento.data)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+                  Nessun movimento disponibile.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {configurazione.pratiche.timeline && (
+          <div className="space-y-4">
+            <div className="wow-panel p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                    Timeline operativa
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Eventi principali rilevati sulle pratiche condivise.
+                  </p>
+                </div>
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  {timeline?.length ?? 0} eventi
+                </span>
+              </div>
+
+              {timeline && timeline.length > 0 ? (
+                <div className="mt-4 space-y-3">
+                  {timeline.map((entry) => (
+                    <div
+                      key={`${entry.praticaId}-${entry.tipo}-${entry.date}`}
+                      className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/70"
+                    >
+                      <div className="flex flex-col text-[10px] text-slate-500 dark:text-slate-400">
+                        <span>{formatSharedDate(entry.date)}</span>
+                        <span className="uppercase">{entry.tipo}</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                          {entry.title}
+                        </p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                          {entry.praticaLabel}
+                        </p>
+                        {entry.detail && (
+                          <p className="text-[11px] text-slate-400">{entry.detail}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+                  Nessun evento disponibile.
+                </p>
+              )}
             </div>
           </div>
         )}

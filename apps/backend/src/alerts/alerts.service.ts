@@ -1,5 +1,5 @@
 // apps/backend/src/alerts/alerts.service.ts
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Alert, MessaggioAlert, type AlertStato } from './alert.entity';
@@ -29,6 +29,7 @@ export class AlertsService {
     const alert = this.alertRepository.create({
       ...createAlertDto,
       giorniAnticipo: createAlertDto.giorniAnticipo ?? 3,
+      clienteCanClose: createAlertDto.clienteCanClose ?? false,
       messaggi: [],
     });
     const saved = await this.alertRepository.save(alert);
@@ -225,6 +226,14 @@ export class AlertsService {
 
   async update(id: string, updateAlertDto: UpdateAlertDto, user?: CurrentUserData): Promise<Alert> {
     const alert = user ? await this.findOneForUser(id, user) : await this.findOne(id);
+
+    if (
+      updateAlertDto.stato &&
+      user?.ruolo === 'cliente' &&
+      !alert.clienteCanClose
+    ) {
+      throw new ForbiddenException('Solo lo studio legale può modificare lo stato degli alert');
+    }
 
     if (updateAlertDto.stato && !this.isValidStatusTransition(alert.stato, updateAlertDto.stato)) {
       throw new BadRequestException(`Transizione stato non valida: ${alert.stato} -> ${updateAlertDto.stato}`);
