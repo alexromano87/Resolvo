@@ -36,17 +36,27 @@ import { RateLimitGuard } from './common/guards/rate-limit.guard';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
-        host: configService.get<string>('DB_HOST', 'localhost'),
-        port: configService.get<number>('DB_PORT', 3307),
-        username: configService.get<string>('DB_USERNAME', 'rc_user'),
-        password: configService.get<string>('DB_PASSWORD', 'rc_pass'),
-        database: configService.get<string>('DB_DATABASE', 'recupero_crediti'),
-        autoLoadEntities: true,
-        // Synchronize solo in development
-        synchronize: configService.get<string>('NODE_ENV') !== 'production',
-      }),
+      useFactory: (configService: ConfigService) => {
+        if (configService.get<string>('DB_USE_SQLITE') === 'true') {
+          return {
+            type: 'sqlite',
+            database: ':memory:',
+            autoLoadEntities: true,
+            synchronize: true,
+          };
+        }
+        return {
+          type: 'mysql',
+          host: configService.get<string>('DB_HOST', 'localhost'),
+          port: configService.get<number>('DB_PORT', 3307),
+          username: configService.get<string>('DB_USERNAME', 'rc_user'),
+          password: configService.get<string>('DB_PASSWORD', 'rc_pass'),
+          database: configService.get<string>('DB_DATABASE', 'recupero_crediti'),
+          autoLoadEntities: true,
+          // Synchronize solo in development
+          synchronize: configService.get<string>('NODE_ENV') !== 'production',
+        };
+      },
     }),
 
     AuthModule,

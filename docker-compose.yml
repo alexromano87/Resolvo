@@ -1,0 +1,45 @@
+version: '3.9'
+services:
+  database:
+    image: mysql:8.1
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: resolvo
+      MYSQL_DATABASE: recupero_crediti
+      MYSQL_USER: rc_user
+      MYSQL_PASSWORD: rc_pass
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+    environment:
+      DB_HOST: database
+      DB_PORT: 3306
+      DB_USERNAME: rc_user
+      DB_PASSWORD: rc_pass
+      DB_DATABASE: recupero_crediti
+      JWT_SECRET: changeme
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    environment:
+      VITE_API_BASE_URL: http://localhost:3000
+    ports:
+      - "4173:4173"
+    depends_on:
+      - backend
+
+volumes:
+  mysql-data:

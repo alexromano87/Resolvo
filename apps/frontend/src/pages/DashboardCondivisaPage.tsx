@@ -13,10 +13,7 @@ import {
 import {
   fetchDashboardCondivisa,
   type DashboardCondivisa,
-  type DashboardCondivisaDocumento,
-  type DashboardCondivisaMovimento,
   type DashboardCondivisaPratica,
-  type DashboardTimelineEvent,
 } from '../api/dashboard';
 
 export function DashboardCondivisaPage() {

@@ -1,30 +1,53 @@
+import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
-import { AppLayout } from './layout/AppLayout';
-import { ProtectedRoute } from './components/ProtectedRoute';
-import LoginPage from './pages/LoginPage';
-import { DashboardPage } from './pages/DashboardPage';
-import { DashboardCondivisaPage } from './pages/DashboardCondivisaPage';
-import { ClientiPage } from './pages/ClientiPage';
-import { RicercaPage } from './pages/RicercaPage';
-import { DebitoriPage } from './pages/DebitoriPage';
-import { PratichePage } from './pages/PratichePage';
-import { PraticaDetailPage } from './pages/PraticaDetailPage';
-import { PraticaClienteDetailPage } from './pages/PraticaClienteDetailPage';
-import { AvvocatiPage } from './pages/AvvocatiPage';
-import { CollaboratoriPage } from './pages/CollaboratoriPage';
-import { AlertsPage } from './pages/AlertsPage';
-import { TicketsPage } from './pages/TicketsPage';
-import { DocumentiPage } from './pages/DocumentiPage';
-import { AdminUsersPage } from './pages/AdminUsersPage';
-import { StudiPage } from './pages/StudiPage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
-import AdminMaintenancePage from './pages/AdminMaintenancePage';
-import AuditLogsPage from './pages/AuditLogsPage';
-import { ExportDatiPage } from './pages/ExportDatiPage';
-import { ImportDatiPage } from './pages/ImportDatiPage';
-import { ImpostazioniPage } from './pages/ImpostazioniPage';
-import ResetPasswordPage from './pages/ResetPasswordPage';
 import { useAuth } from './contexts/AuthContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { PageLoader } from './components/ui/PageLoader';
+import { lazyNamed } from './utils/lazyNamed';
+
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
+const RicercaPage = lazy(() => import('./pages/RicercaPage'));
+const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
+const AdminMaintenancePage = lazy(() => import('./pages/AdminMaintenancePage'));
+const AuditLogsPage = lazy(() => import('./pages/AuditLogsPage'));
+const ProtectedRoute = lazy(() =>
+  import('./components/ProtectedRoute').then((module) => ({ default: module.ProtectedRoute })),
+);
+
+const AppLayout = lazyNamed(() => import('./layout/AppLayout'), 'AppLayout');
+const DashboardPage = lazyNamed(() => import('./pages/DashboardPage'), 'DashboardPage');
+const DashboardCondivisaPage = lazyNamed(
+  () => import('./pages/DashboardCondivisaPage'),
+  'DashboardCondivisaPage',
+);
+const ClientiPage = lazyNamed(() => import('./pages/ClientiPage'), 'ClientiPage');
+const DebitoriPage = lazyNamed(() => import('./pages/DebitoriPage'), 'DebitoriPage');
+const PratichePage = lazyNamed(() => import('./pages/PratichePage'), 'PratichePage');
+const PraticaDetailPage = lazyNamed(
+  () => import('./pages/PraticaDetailPage'),
+  'PraticaDetailPage',
+);
+const PraticaClienteDetailPage = lazyNamed(
+  () => import('./pages/PraticaClienteDetailPage'),
+  'PraticaClienteDetailPage',
+);
+const AvvocatiPage = lazyNamed(() => import('./pages/AvvocatiPage'), 'AvvocatiPage');
+const CollaboratoriPage = lazyNamed(
+  () => import('./pages/CollaboratoriPage'),
+  'CollaboratoriPage',
+);
+const AlertsPage = lazyNamed(() => import('./pages/AlertsPage'), 'AlertsPage');
+const TicketsPage = lazyNamed(() => import('./pages/TicketsPage'), 'TicketsPage');
+const DocumentiPage = lazyNamed(() => import('./pages/DocumentiPage'), 'DocumentiPage');
+const AdminUsersPage = lazyNamed(() => import('./pages/AdminUsersPage'), 'AdminUsersPage');
+const StudiPage = lazyNamed(() => import('./pages/StudiPage'), 'StudiPage');
+const ExportDatiPage = lazyNamed(() => import('./pages/ExportDatiPage'), 'ExportDatiPage');
+const ImportDatiPage = lazyNamed(() => import('./pages/ImportDatiPage'), 'ImportDatiPage');
+const ImpostazioniPage = lazyNamed(
+  () => import('./pages/ImpostazioniPage'),
+  'ImpostazioniPage',
+);
 
 const PraticaDetailRoute = () => {
   const { user } = useAuth();
@@ -37,45 +60,66 @@ const PraticaDetailRoute = () => {
   return <PraticaDetailPage />;
 };
 
+const errorFallback = (
+  <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
+    <div className="text-center space-y-4 rounded-2xl border border-rose-200 bg-rose-50 p-6 shadow-lg dark:border-rose-800 dark:bg-rose-900/60">
+      <p className="text-lg font-semibold text-rose-600">Oops! Qualcosa è andato storto</p>
+      <p className="text-sm text-slate-600 dark:text-slate-300">
+        Prova a ricaricare la pagina o torna alla dashboard.
+      </p>
+      <button
+        onClick={() => window.location.reload()}
+        className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-md shadow-rose-400/30 hover:bg-rose-100 dark:bg-rose-600 dark:text-white"
+      >
+        Ricarica
+      </button>
+    </div>
+  </div>
+);
+
 function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/dashboard-condivisa" element={<DashboardCondivisaPage />} />
-      <Route
-        path="/*"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <Routes>
-                <Route path="/" element={<DashboardPage />} />
-                <Route path="/clienti" element={<ClientiPage />} />
-                <Route path="/clienti/:id" element={<ClientiPage />} />
-                <Route path="/debitori" element={<DebitoriPage />} />
-                <Route path="/pratiche" element={<PratichePage />} />
-                <Route path="/pratiche/:id" element={<PraticaDetailRoute />} />
-                <Route path="/pratiche/:id/cliente" element={<PraticaClienteDetailPage />} />
-                <Route path="/avvocati" element={<AvvocatiPage />} />
-                <Route path="/collaboratori" element={<CollaboratoriPage />} />
-                <Route path="/alert" element={<AlertsPage />} />
-                <Route path="/ticket" element={<TicketsPage />} />
-                <Route path="/documenti" element={<DocumentiPage />} />
-                <Route path="/ricerca" element={<RicercaPage />} />
-                <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-                <Route path="/admin/users" element={<AdminUsersPage />} />
-                <Route path="/admin/studi" element={<StudiPage />} />
-                <Route path="/admin/maintenance" element={<AdminMaintenancePage />} />
-                <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
-                <Route path="/admin/export-dati" element={<ExportDatiPage />} />
-                <Route path="/admin/import-dati" element={<ImportDatiPage />} />
-                <Route path="/impostazioni" element={<ImpostazioniPage />} />
-              </Routes>
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+    <ErrorBoundary fallback={errorFallback}>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/dashboard-condivisa" element={<DashboardCondivisaPage />} />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Routes>
+                    <Route path="/" element={<DashboardPage />} />
+                    <Route path="/clienti" element={<ClientiPage />} />
+                    <Route path="/clienti/:id" element={<ClientiPage />} />
+                    <Route path="/debitori" element={<DebitoriPage />} />
+                    <Route path="/pratiche" element={<PratichePage />} />
+                    <Route path="/pratiche/:id" element={<PraticaDetailRoute />} />
+                    <Route path="/pratiche/:id/cliente" element={<PraticaClienteDetailPage />} />
+                    <Route path="/avvocati" element={<AvvocatiPage />} />
+                    <Route path="/collaboratori" element={<CollaboratoriPage />} />
+                    <Route path="/alert" element={<AlertsPage />} />
+                    <Route path="/ticket" element={<TicketsPage />} />
+                    <Route path="/documenti" element={<DocumentiPage />} />
+                    <Route path="/ricerca" element={<RicercaPage />} />
+                    <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+                    <Route path="/admin/users" element={<AdminUsersPage />} />
+                    <Route path="/admin/studi" element={<StudiPage />} />
+                    <Route path="/admin/maintenance" element={<AdminMaintenancePage />} />
+                    <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
+                    <Route path="/admin/export-dati" element={<ExportDatiPage />} />
+                    <Route path="/admin/import-dati" element={<ImportDatiPage />} />
+                    <Route path="/impostazioni" element={<ImpostazioniPage />} />
+                  </Routes>
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 

@@ -1,63 +1,29 @@
-# ===================================
-# RESOLVO Backend - Dockerfile
-# ===================================
+FROM node:20-alpine AS base
+WORKDIR /usr/src/app
 
-# Stage 1: Builder
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-# Copia package files
 COPY package*.json ./
+RUN npm install --production
 
-# Installa dipendenze
-RUN npm ci
+FROM node:20-alpine AS builder
+WORKDIR /usr/src/app
 
-# Copia codice sorgente
-COPY . .
-
-# Build dell'applicazione
+COPY package*.json ./
+RUN npm install
+COPY ./src ./src
+COPY tsconfig*.json ./
+COPY nest-cli.json ./
+COPY scripts ./scripts
 RUN npm run build
 
-# ===================================
-# Stage 2: Production
-FROM node:20-alpine
+FROM node:20-alpine AS runner
+WORKDIR /usr/src/app
 
-WORKDIR /app
-
-# Installa dumb-init per gestire correttamente i segnali
-RUN apk add --no-cache dumb-init
-
-# Crea utente non-root per sicurezza
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nestjs -u 1001
-
-# Copia package files
 COPY package*.json ./
+RUN npm install --production
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/scripts/start-with-migrations.sh ./start-with-migrations.sh
 
-# Installa solo dipendenze production
-RUN npm ci --only=production && \
-    npm cache clean --force
+RUN chmod +x ./start-with-migrations.sh
 
-# Copia build artifacts da builder stage
-COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
-
-# Crea directory uploads con permessi corretti
-RUN mkdir -p /app/uploads && \
-    chown -R nestjs:nodejs /app/uploads
-
-# Switch a utente non-root
-USER nestjs
-
-# Esponi porta
 EXPOSE 3000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
-  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
-
-# Usa dumb-init per gestire PID 1
-ENTRYPOINT ["dumb-init", "--"]
-
-# Start application
-CMD ["node", "dist/main.js"]
+CMD ["./start-with-migrations.sh"]

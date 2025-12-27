@@ -43,6 +43,9 @@ function getTipoDocumento(extension: string): TipoDocumento {
   return 'altro';
 }
 
+const MAX_UPLOAD_MB = Number(process.env.UPLOAD_DOCUMENT_MAX_MB ?? 50);
+const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
+
 // Multer configuration for file upload
 const storage = diskStorage({
   destination: (req, file, cb) => {
@@ -69,7 +72,7 @@ export class DocumentiController {
   ) {}
 
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file', { storage }))
+  @UseInterceptors(FileInterceptor('file', { storage, limits: { fileSize: MAX_UPLOAD_BYTES } }))
   async uploadFile(
     @CurrentUser() user: CurrentUserData,
     @UploadedFile() file: Express.Multer.File,
