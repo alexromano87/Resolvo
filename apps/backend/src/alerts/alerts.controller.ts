@@ -18,6 +18,8 @@ import { AddMessaggioDto } from './dto/add-messaggio.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { CurrentUserData } from '../auth/current-user.decorator';
+import { RateLimit } from '../common/rate-limit.decorator';
+import { RateLimitGuard } from '../common/rate-limit.guard';
 
 @Controller('alerts')
 @UseGuards(JwtAuthGuard)
@@ -25,6 +27,8 @@ export class AlertsController {
   constructor(private readonly alertsService: AlertsService) {}
 
   @Post()
+  @UseGuards(RateLimitGuard)
+  @RateLimit({ limit: 30, windowMs: 10 * 60 * 1000 })
   create(@CurrentUser() user: CurrentUserData, @Body() createAlertDto: CreateAlertDto) {
     if (user.ruolo !== 'admin' && user.studioId) {
       createAlertDto.studioId = user.studioId;
@@ -103,6 +107,8 @@ export class AlertsController {
   }
 
   @Post(':id/messaggi')
+  @UseGuards(RateLimitGuard)
+  @RateLimit({ limit: 60, windowMs: 10 * 60 * 1000 })
   addMessaggio(
     @CurrentUser() user: CurrentUserData,
     @Param('id') id: string,

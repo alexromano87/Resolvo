@@ -30,6 +30,8 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import type { CurrentUserData } from '../auth/current-user.decorator';
 import { PraticheService } from '../pratiche/pratiche.service';
 import { CartelleService } from '../cartelle/cartelle.service';
+import { RateLimit } from '../common/rate-limit.decorator';
+import { RateLimitGuard } from '../common/rate-limit.guard';
 
 // Utility function to determine document type from file extension
 function getTipoDocumento(extension: string): TipoDocumento {
@@ -72,6 +74,8 @@ export class DocumentiController {
   ) {}
 
   @Post('upload')
+  @UseGuards(RateLimitGuard)
+  @RateLimit({ limit: 10, windowMs: 15 * 60 * 1000 })
   @UseInterceptors(FileInterceptor('file', { storage, limits: { fileSize: MAX_UPLOAD_BYTES } }))
   async uploadFile(
     @CurrentUser() user: CurrentUserData,
@@ -169,6 +173,8 @@ export class DocumentiController {
   }
 
   @Get(':id/download')
+  @UseGuards(RateLimitGuard)
+  @RateLimit({ limit: 60, windowMs: 10 * 60 * 1000 })
   async downloadFile(
     @CurrentUser() user: CurrentUserData,
     @Param('id') id: string,
@@ -208,6 +214,8 @@ export class DocumentiController {
   }
 
   @Delete(':id')
+  @UseGuards(RateLimitGuard)
+  @RateLimit({ limit: 20, windowMs: 10 * 60 * 1000 })
   async remove(@CurrentUser() user: CurrentUserData, @Param('id') id: string): Promise<void> {
     await this.assertDocumentoAccess(id, user);
     return this.documentiService.remove(id);

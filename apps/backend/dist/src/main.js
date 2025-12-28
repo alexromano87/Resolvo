@@ -5,9 +5,35 @@ const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const config_1 = require("@nestjs/config");
 const swagger_1 = require("@nestjs/swagger");
+const express_1 = require("express");
+function sanitizeObject(obj) {
+    if (obj && typeof obj === 'object') {
+        Object.keys(obj).forEach((key) => {
+            if (key.startsWith('$') || key.includes('.')) {
+                delete obj[key];
+            }
+            else {
+                sanitizeObject(obj[key]);
+            }
+        });
+    }
+}
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     const configService = app.get(config_1.ConfigService);
+    app.use((0, express_1.json)({ limit: '2mb' }));
+    app.use((0, express_1.urlencoded)({ limit: '2mb', extended: true }));
+    app.use((req, res, next) => {
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+        res.setHeader('Referrer-Policy', 'no-referrer');
+        res.setHeader('X-XSS-Protection', '1; mode=block');
+        res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+        sanitizeObject(req.body);
+        sanitizeObject(req.query);
+        sanitizeObject(req.params);
+        next();
+    });
     const nodeEnv = configService.get('NODE_ENV', 'development');
     const isProduction = nodeEnv === 'production';
     const allowedOrigins = [

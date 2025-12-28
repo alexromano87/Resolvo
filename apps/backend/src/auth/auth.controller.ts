@@ -54,7 +54,7 @@ export class AuthController {
 
   @Post('refresh')
   @UseGuards(RateLimitGuard)
-  @RateLimit({ limit: 10, windowMs: 5 * 60 * 1000 })
+  @RateLimit({ limit: 15, windowMs: 5 * 60 * 1000 })
   async refresh(@Body() dto: RefreshTokenDto) {
     return this.authService.refreshToken(dto.userId, dto.refreshToken);
   }

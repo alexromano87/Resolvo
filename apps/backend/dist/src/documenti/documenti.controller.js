@@ -57,6 +57,8 @@ const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const current_user_decorator_1 = require("../auth/current-user.decorator");
 const pratiche_service_1 = require("../pratiche/pratiche.service");
 const cartelle_service_1 = require("../cartelle/cartelle.service");
+const rate_limit_decorator_1 = require("../common/rate-limit.decorator");
+const rate_limit_guard_1 = require("../common/rate-limit.guard");
 function getTipoDocumento(extension) {
     const ext = extension.toLowerCase();
     if (ext === '.pdf')
@@ -190,6 +192,8 @@ let DocumentiController = class DocumentiController {
 exports.DocumentiController = DocumentiController;
 __decorate([
     (0, common_1.Post)('upload'),
+    (0, common_1.UseGuards)(rate_limit_guard_1.RateLimitGuard),
+    (0, rate_limit_decorator_1.RateLimit)({ limit: 10, windowMs: 15 * 60 * 1000 }),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', { storage, limits: { fileSize: MAX_UPLOAD_BYTES } })),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.UploadedFile)()),
@@ -244,6 +248,8 @@ __decorate([
 ], DocumentiController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Get)(':id/download'),
+    (0, common_1.UseGuards)(rate_limit_guard_1.RateLimitGuard),
+    (0, rate_limit_decorator_1.RateLimit)({ limit: 60, windowMs: 10 * 60 * 1000 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('id')),
     __param(2, (0, common_1.Res)({ passthrough: true })),
@@ -278,6 +284,8 @@ __decorate([
 ], DocumentiController.prototype, "reactivate", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, common_1.UseGuards)(rate_limit_guard_1.RateLimitGuard),
+    (0, rate_limit_decorator_1.RateLimit)({ limit: 20, windowMs: 10 * 60 * 1000 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),

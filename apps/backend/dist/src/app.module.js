@@ -31,7 +31,7 @@ const export_module_1 = require("./export/export.module");
 const import_module_1 = require("./import/import.module");
 const notifications_module_1 = require("./notifications/notifications.module");
 const core_1 = require("@nestjs/core");
-const rate_limit_guard_1 = require("./common/guards/rate-limit.guard");
+const rate_limit_guard_1 = require("./common/rate-limit.guard");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;

@@ -214,4 +214,30 @@ describe('AuthService', () => {
     });
     expect(userRepository.save).toHaveBeenCalled();
   });
+
+  it('refreshToken: revokes on invalid token', async () => {
+    const refreshToken = 'wrong-token';
+    const user = {
+      id: 'u5',
+      email: 'refresh@example.com',
+      ruolo: 'collaboratore',
+      attivo: true,
+      tokenVersion: 2,
+      refreshTokenHash: await bcrypt.hash('valid-token', 10),
+      refreshTokenExpiresAt: new Date(Date.now() + 60_000),
+    } as User;
+
+    (userRepository.findOne as jest.Mock).mockResolvedValue(user);
+
+    await expect(service.refreshToken(user.id, refreshToken)).rejects.toBeInstanceOf(UnauthorizedException);
+
+    expect(userRepository.update).toHaveBeenCalledWith(
+      user.id,
+      expect.objectContaining({
+        refreshTokenHash: null,
+        refreshTokenExpiresAt: null,
+        tokenVersion: user.tokenVersion + 1,
+      }),
+    );
+  });
 });

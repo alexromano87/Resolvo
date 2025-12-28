@@ -19,6 +19,8 @@ import { AdminGuard } from '../auth/admin.guard';
 import { AuditLogService } from '../audit/audit-log.service';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { CurrentUserData } from '../auth/current-user.decorator';
+import { RateLimit } from '../common/rate-limit.decorator';
+import { RateLimitGuard } from '../common/rate-limit.guard';
 
 @Controller('import')
 @UseGuards(JwtAuthGuard, AdminGuard)
@@ -29,6 +31,8 @@ export class ImportController {
   ) {}
 
   @Post('backup')
+  @UseGuards(RateLimitGuard)
+  @RateLimit({ limit: 5, windowMs: 10 * 60 * 1000 })
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(),
@@ -73,6 +77,8 @@ export class ImportController {
   }
 
   @Post('csv')
+  @UseGuards(RateLimitGuard)
+  @RateLimit({ limit: 10, windowMs: 10 * 60 * 1000 })
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(),

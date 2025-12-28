@@ -129,7 +129,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)('refresh'),
     (0, common_1.UseGuards)(rate_limit_guard_1.RateLimitGuard),
-    (0, rate_limit_decorator_1.RateLimit)({ limit: 10, windowMs: 5 * 60 * 1000 }),
+    (0, rate_limit_decorator_1.RateLimit)({ limit: 15, windowMs: 5 * 60 * 1000 }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [refresh_token_dto_1.RefreshTokenDto]),

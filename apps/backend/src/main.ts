@@ -3,10 +3,44 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { json, urlencoded } from 'express';
+
+// Sanitize request objects from keys like $ or dots (basic NoSQL injection guard)
+function sanitizeObject(obj: any) {
+  if (obj && typeof obj === 'object') {
+    Object.keys(obj).forEach((key) => {
+      if (key.startsWith('$') || key.includes('.')) {
+        delete obj[key];
+      } else {
+        sanitizeObject(obj[key]);
+      }
+    });
+  }
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+
+  // Limita dimensioni dei payload JSON/form
+  app.use(json({ limit: '2mb' }));
+  app.use(urlencoded({ limit: '2mb', extended: true }));
+
+  // Header di sicurezza base
+  app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+
+    // Sanitize body/query/params (shallow)
+    sanitizeObject(req.body);
+    sanitizeObject(req.query);
+    sanitizeObject(req.params);
+
+    next();
+  });
 
   // Rileva ambiente e configura CORS automaticamente
   const nodeEnv = configService.get<string>('NODE_ENV', 'development');

@@ -20,6 +20,8 @@ const update_alert_dto_1 = require("./dto/update-alert.dto");
 const add_messaggio_dto_1 = require("./dto/add-messaggio.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const current_user_decorator_1 = require("../auth/current-user.decorator");
+const rate_limit_decorator_1 = require("../common/rate-limit.decorator");
+const rate_limit_guard_1 = require("../common/rate-limit.guard");
 let AlertsController = class AlertsController {
     alertsService;
     constructor(alertsService) {
@@ -77,6 +79,8 @@ let AlertsController = class AlertsController {
 exports.AlertsController = AlertsController;
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.UseGuards)(rate_limit_guard_1.RateLimitGuard),
+    (0, rate_limit_decorator_1.RateLimit)({ limit: 30, windowMs: 10 * 60 * 1000 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -158,6 +162,8 @@ __decorate([
 ], AlertsController.prototype, "remove", null);
 __decorate([
     (0, common_1.Post)(':id/messaggi'),
+    (0, common_1.UseGuards)(rate_limit_guard_1.RateLimitGuard),
+    (0, rate_limit_decorator_1.RateLimit)({ limit: 60, windowMs: 10 * 60 * 1000 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('id')),
     __param(2, (0, common_1.Body)()),

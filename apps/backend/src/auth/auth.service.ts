@@ -359,9 +359,16 @@ export class AuthService {
 
     const isValid = await bcrypt.compare(refreshToken, user.refreshTokenHash);
     if (!isValid) {
+      // Tentativo con token errato: revoca tutto
+      await this.userRepository.update(user.id, {
+        refreshTokenHash: null,
+        refreshTokenExpiresAt: null,
+        tokenVersion: (user.tokenVersion ?? 0) + 1,
+      });
       throw new UnauthorizedException('Refresh token non valido');
     }
 
+    // Rotazione: emette nuovo refresh e invalida quello usato
     const tokens = await this.issueTokens(user);
     return {
       ...tokens,

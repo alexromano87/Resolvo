@@ -337,6 +337,11 @@ let AuthService = class AuthService {
         }
         const isValid = await bcrypt.compare(refreshToken, user.refreshTokenHash);
         if (!isValid) {
+            await this.userRepository.update(user.id, {
+                refreshTokenHash: null,
+                refreshTokenExpiresAt: null,
+                tokenVersion: (user.tokenVersion ?? 0) + 1,
+            });
             throw new common_1.UnauthorizedException('Refresh token non valido');
         }
         const tokens = await this.issueTokens(user);

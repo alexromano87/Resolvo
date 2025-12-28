@@ -22,7 +22,7 @@ import { ExportModule } from './export/export.module';
 import { ImportModule } from './import/import.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { APP_GUARD } from '@nestjs/core';
-import { RateLimitGuard } from './common/guards/rate-limit.guard';
+import { RateLimitGuard } from './common/rate-limit.guard';
 
 @Module({
   imports: [

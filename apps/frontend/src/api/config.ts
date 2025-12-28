@@ -1,13 +1,21 @@
 // src/api/config.ts
 // Configurazione centralizzata per le API
 
-/**
- * Rileva automaticamente l'ambiente e configura l'URL API
- */
+const metaEnv = typeof import.meta !== 'undefined' ? ((import.meta as any).env || {}) : {};
+const nodeEnv = typeof process !== 'undefined' ? process.env || {} : {};
+const env = { ...nodeEnv, ...metaEnv };
+
+// Helper per leggere una variabile env in modo sicuro anche in contesti non Vite/DOM (es. Playwright)
+const getEnv = (key: string) => env[key] || env[`VITE_${key}`];
+
 function getApiBaseUrl(): string {
   // 1. Se definito in .env, usa quello (priorità massima)
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+  const explicit = getEnv('VITE_API_URL') || getEnv('API_URL');
+  if (explicit) return explicit;
+
+  // In contesti senza window (test E2E o SSR) torna un fallback sicuro
+  if (typeof window === 'undefined') {
+    return 'http://localhost:3000';
   }
 
   // 2. Rileva automaticamente in base all'hostname
@@ -38,9 +46,9 @@ function getApiBaseUrl(): string {
 export const API_BASE_URL = getApiBaseUrl();
 
 // Debug: mostra in console quale URL viene usato (solo in development)
-if (import.meta.env.DEV) {
+if (metaEnv.DEV) {
   console.log('🔧 API Base URL:', API_BASE_URL);
-  console.log('🌍 Environment:', import.meta.env.MODE);
+  console.log('🌍 Environment:', metaEnv.MODE);
 }
 
 /**

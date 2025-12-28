@@ -22,6 +22,8 @@ const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const admin_guard_1 = require("../auth/admin.guard");
 const audit_log_service_1 = require("../audit/audit-log.service");
 const current_user_decorator_1 = require("../auth/current-user.decorator");
+const rate_limit_decorator_1 = require("../common/rate-limit.decorator");
+const rate_limit_guard_1 = require("../common/rate-limit.guard");
 let ImportController = class ImportController {
     importService;
     auditLogService;
@@ -91,6 +93,8 @@ let ImportController = class ImportController {
 exports.ImportController = ImportController;
 __decorate([
     (0, common_1.Post)('backup'),
+    (0, common_1.UseGuards)(rate_limit_guard_1.RateLimitGuard),
+    (0, rate_limit_decorator_1.RateLimit)({ limit: 5, windowMs: 10 * 60 * 1000 }),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', {
         storage: (0, multer_1.memoryStorage)(),
         limits: { fileSize: 50 * 1024 * 1024 },
@@ -103,6 +107,8 @@ __decorate([
 ], ImportController.prototype, "importBackup", null);
 __decorate([
     (0, common_1.Post)('csv'),
+    (0, common_1.UseGuards)(rate_limit_guard_1.RateLimitGuard),
+    (0, rate_limit_decorator_1.RateLimit)({ limit: 10, windowMs: 10 * 60 * 1000 }),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', {
         storage: (0, multer_1.memoryStorage)(),
         limits: { fileSize: 20 * 1024 * 1024 },

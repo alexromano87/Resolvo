@@ -8,23 +8,30 @@ import {
 import { Reflector } from '@nestjs/core';
 import { RATE_LIMIT_KEY, type RateLimitOptions } from './rate-limit.decorator';
 
-const store = new Map<string, { count: number; resetAt: number }>();
-
 @Injectable()
 export class RateLimitGuard implements CanActivate {
+  readonly store = new Map<string, { count: number; resetAt: number }>();
+  private readonly defaultLimit = 60;
+  private readonly defaultWindowMs = 60_000;
+
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
     const handler = context.getHandler();
     const klass = context.getClass();
 
-    const options =
+    const meta =
       this.reflector.get<RateLimitOptions>(RATE_LIMIT_KEY, handler) ||
       this.reflector.get<RateLimitOptions>(RATE_LIMIT_KEY, klass);
 
-    if (!options) return true;
+    const options: RateLimitOptions = {
+      limit: meta?.limit ?? this.defaultLimit,
+      windowMs: meta?.windowMs ?? this.defaultWindowMs,
+    };
 
     const request = context.switchToHttp().getRequest();
+    if (!request) return true;
+
     const ipHeader = request.headers?.['x-forwarded-for'];
     const ip =
       (Array.isArray(ipHeader) ? ipHeader[0] : ipHeader) ||
@@ -34,10 +41,10 @@ export class RateLimitGuard implements CanActivate {
     const key = `${ip}:${request.method}:${routeKey}`;
 
     const now = Date.now();
-    const entry = store.get(key);
+    const entry = this.store.get(key);
 
     if (!entry || entry.resetAt < now) {
-      store.set(key, { count: 1, resetAt: now + options.windowMs });
+      this.store.set(key, { count: 1, resetAt: now + options.windowMs });
       return true;
     }
 
@@ -46,7 +53,7 @@ export class RateLimitGuard implements CanActivate {
     }
 
     entry.count += 1;
-    store.set(key, entry);
+    this.store.set(key, entry);
     return true;
   }
 }
