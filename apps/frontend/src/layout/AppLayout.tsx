@@ -648,12 +648,12 @@ export function AppLayout({ children }: AppLayoutProps) {
   const visibleStudioNav = isStudioManagement ? studioNav : [];
 
   return (
-    <div className="min-h-screen overflow-hidden bg-transparent text-slate-900 transition-colors duration-300 dark:text-slate-100">
+    <div className="min-h-screen overflow-visible bg-transparent text-slate-900 transition-colors duration-300 dark:text-slate-100">
       {/* sfondo sfumato dietro al layout */}
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.96),transparent_55%),radial-gradient(circle_at_18%_12%,rgba(79,70,229,0.28),transparent_50%),radial-gradient(circle_at_92%_6%,rgba(242,179,107,0.2),transparent_44%),linear-gradient(135deg,#ebe8ff,#dfe6ff)] transition-colors duration-300 dark:bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.65),transparent_55%),radial-gradient(circle_at_80%_10%,rgba(79,70,229,0.25),transparent_45%),linear-gradient(135deg,#05070c,#0b1120)]" />
       <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(120deg,rgba(10,16,32,0.06),transparent_45%)]" />
 
-      <div className="relative flex h-screen overflow-hidden p-4 gap-4">
+      <div className="relative flex h-screen overflow-visible p-4 gap-4">
         {/* SIDEBAR - Navy Scura Professionale */}
         <aside className="z-10 flex h-full w-80 flex-col overflow-hidden rounded-2xl border border-blue-900/20 bg-gradient-to-b from-slate-900 to-blue-950 shadow-[0_20px_60px_rgba(15,23,42,0.2)]">
           {/* Logo + studio */}
@@ -1044,7 +1044,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         </aside>
 
         {/* MAIN COLUMN */}
-        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="flex min-w-0 flex-1 flex-col overflow-visible">
           {/* HEADER */}
           <header className="mx-6 mt-6 flex h-16 shrink-0 items-center justify-between rounded-2xl border border-indigo-200/60 bg-white/85 px-6 backdrop-blur transition-colors duration-300 shadow-[0_20px_60px_rgba(10,16,32,0.16)] dark:border-slate-800 dark:bg-slate-950/80 dark:shadow-none">
             <div className="flex flex-col">

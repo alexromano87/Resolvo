@@ -1,45 +1,141 @@
-version: '3.9'
+version: '3.8'
+
 services:
-  database:
-    image: mysql:8.1
+  # ===================================
+  # Database MySQL
+  # ===================================
+  mysql:
+    image: mysql:8.0
+    container_name: resolvo-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: resolvo
+      MYSQL_ROOT_PASSWORD: root!
       MYSQL_DATABASE: recupero_crediti
       MYSQL_USER: rc_user
       MYSQL_PASSWORD: rc_pass
-    volumes:
-      - mysql-data:/var/lib/mysql
     ports:
-      - "3307:3306"
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - resolvo-network
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot!"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # ===================================
+  # Redis Cache (opzionale)
+  # ===================================
+  redis:
+    image: redis:7-alpine
+    container_name: resolvo-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - resolvo-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ===================================
+  # Backend NestJS
+  # ===================================
   backend:
     build:
       context: ./apps/backend
       dockerfile: Dockerfile
-    depends_on:
-      - database
+    container_name: resolvo-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
     environment:
-      DB_HOST: database
+      # Application
+      NODE_ENV: production
+      PORT: 3000
+
+      # Database (usa nome servizio 'mysql' come host)
+      DB_HOST: mysql
       DB_PORT: 3306
       DB_USERNAME: rc_user
       DB_PASSWORD: rc_pass
       DB_DATABASE: recupero_crediti
-      JWT_SECRET: changeme
-      NODE_ENV: development
-    ports:
-      - "3000:3000"
 
+      # JWT
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production-12345678
+      JWT_EXPIRATION: 7d
+
+      # Uploads
+      UPLOAD_DIR: /app/uploads
+      MAX_FILE_SIZE: 10485760
+
+      # Redis (opzionale)
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+      # Frontend URL (opzionale - auto-detect funziona)
+      # FRONTEND_URL: http://3.120.81.201
+    volumes:
+      - ./apps/backend/uploads:/app/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - resolvo-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ===================================
+  # Frontend React + Nginx
+  # ===================================
   frontend:
     build:
       context: ./apps/frontend
       dockerfile: Dockerfile
-    environment:
-      VITE_API_BASE_URL: http://localhost:3000
+      args:
+        # Build-time variables (opzionale - auto-detect funziona)
+        # VITE_API_URL: http://3.120.81.201:3000
+        VITE_APP_NAME: RESOLVO
+        VITE_APP_VERSION: 1.0.0
+    container_name: resolvo-frontend
+    restart: unless-stopped
     ports:
-      - "4173:4173"
+      - "80:80"
     depends_on:
       - backend
+    networks:
+      - resolvo-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
+# ===================================
+# Volumes per Persistenza Dati
+# ===================================
 volumes:
-  mysql-data:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
+# ===================================
+# Network Isolato
+# ===================================
+networks:
+  resolvo-network:
+    driver: bridge

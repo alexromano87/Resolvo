@@ -200,6 +200,17 @@ html[data-density='compatta'] button {
   padding-bottom: 0.35rem !important;
 }
 
+.body-portal-root {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.body-portal-root > * {
+  pointer-events: auto;
+}
+
 /* Transizione morbida tra temi */
 html.theme-transition *,
 html.theme-transition *::before,

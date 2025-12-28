@@ -3,6 +3,7 @@ import { Building2, Plus, Edit2, Trash2, Power, PowerOff, X, Save } from 'lucide
 import { studiApi, type Studio, type CreateStudioDto } from '../api/studi';
 import { useToast } from '../components/ui/ToastProvider';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
+import { BodyPortal } from '../components/ui/BodyPortal';
 import { Pagination } from '../components/Pagination';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -317,8 +318,9 @@ export function StudiPage() {
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-lg bg-white p-6 dark:bg-slate-800 flex flex-col">
+        <BodyPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-lg bg-white p-6 dark:bg-slate-800 flex flex-col">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 {isEditing ? 'Modifica studio' : 'Nuovo studio'}
@@ -485,8 +487,9 @@ export function StudiPage() {
                 </button>
               </div>
             </form>
+            </div>
           </div>
-        </div>
+        </BodyPortal>
       )}
 
       <ConfirmDialog />

@@ -75,6 +75,7 @@ export function CustomSelect({
   };
 
   const preferredHeight = 280;
+  const rafRef = useRef<number | null>(null);
 
   useLayoutEffect(() => {
     if (!isOpen) return;
@@ -82,30 +83,43 @@ export function CustomSelect({
     const updatePosition = () => {
       const trigger = triggerRef.current;
       if (!trigger) return;
-      const rect = trigger.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - rect.bottom;
-      const spaceAbove = rect.top;
-      const shouldDropUp = dropUp || (spaceBelow < preferredHeight && spaceAbove > spaceBelow);
-      const height = Math.min(preferredHeight, window.innerHeight - 24);
-      const top = shouldDropUp
-        ? Math.max(12, rect.top - height - 8)
-        : Math.min(window.innerHeight - height - 12, rect.bottom + 8);
-      setDropdownStyle({
-        position: 'fixed',
-        top,
-        left: Math.max(12, rect.left),
-        width: rect.width,
-        maxHeight: height,
-        zIndex: 2000,
-      });
+        const rect = trigger.getBoundingClientRect();
+        const shouldDropUp = dropUp;
+        const height = Math.min(preferredHeight, window.innerHeight - 24);
+        const top = shouldDropUp
+          ? Math.max(12, rect.top - height - 8)
+          : Math.min(window.innerHeight - height - 12, rect.bottom + 8);
+        const maxLeft = window.innerWidth - rect.width - 12;
+        const left = Math.max(12, Math.min(rect.left, maxLeft));
+        setDropdownStyle({
+          position: 'fixed',
+          top,
+          left,
+          width: rect.width,
+          maxHeight: height,
+          zIndex: 2000,
+        });
     };
 
-    updatePosition();
-    window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition, true);
+    const scheduleUpdate = () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+      rafRef.current = requestAnimationFrame(updatePosition);
+    };
+
+    scheduleUpdate();
+    const handleResize = () => scheduleUpdate();
+    const handleScroll = () => scheduleUpdate();
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleScroll, true);
     return () => {
-      window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll, true);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
     };
   }, [isOpen, dropUp]);
 

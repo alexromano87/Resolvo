@@ -1,5 +1,5 @@
 // apps/frontend/src/pages/PraticaDetailPage.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ChangeEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   FileText, Save, ChevronRight, RefreshCw, ArrowLeft,
@@ -13,6 +13,7 @@ import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import { CustomSelect } from '../components/ui/CustomSelect';
 import { CollaboratoriMultiSelect } from '../components/ui/CollaboratoriMultiSelect';
 import { useToast } from '../components/ui/ToastProvider';
+import { BodyPortal } from '../components/ui/BodyPortal';
 import { useAuth } from '../contexts/AuthContext';
 import {
   fetchPratica,
@@ -111,6 +112,8 @@ export function PraticaDetailPage() {
   const canManageAlertStatus = user?.ruolo !== 'cliente';
   const canChangeFase = user?.ruolo !== 'segreteria';
   const { success, error: toastError, info: toastInfo } = useToast();
+  const uploadLimitMb = Number(import.meta.env.VITE_UPLOAD_DOCUMENT_MAX_MB ?? '50');
+  const uploadLimitBytes = uploadLimitMb * 1024 * 1024;
 
   // Data states
   const [pratica, setPratica] = useState<Pratica | null>(null);
@@ -167,6 +170,22 @@ export function PraticaDetailPage() {
   const [loadingDocumenti, setLoadingDocumenti] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const handlePraticaFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+    if (!file) {
+      setUploadFile(null);
+      return;
+    }
+
+    if (file.size > uploadLimitBytes) {
+      toastError(`Il file supera il limite massimo di ${uploadLimitMb} MB`);
+      setUploadFile(null);
+      event.target.value = '';
+      return;
+    }
+
+    setUploadFile(file);
+  };
 
   // Alert states
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -1293,7 +1312,8 @@ export function PraticaDetailPage() {
               )}
             </div>
           </div>
-        )}
+        </BodyPortal>
+      )}
 
         <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80">
           <div className="flex items-center gap-2 mb-2">
@@ -1488,7 +1508,8 @@ export function PraticaDetailPage() {
               </div>
             </div>
           </div>
-        )}
+        </BodyPortal>
+      )}
       </div>
     );
   };
@@ -1662,6 +1683,7 @@ export function PraticaDetailPage() {
 
         {/* Modal Form Movimento */}
         {showMovimentoForm && (
+        <BodyPortal>
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -1750,7 +1772,8 @@ export function PraticaDetailPage() {
               </div>
             </div>
           </div>
-        )}
+        </BodyPortal>
+      )}
       </div>
     );
   };
@@ -1841,6 +1864,7 @@ export function PraticaDetailPage() {
 
         {/* Upload Modal */}
         {showUploadModal && (
+        <BodyPortal>
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -1867,9 +1891,13 @@ export function PraticaDetailPage() {
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Seleziona file *</label>
                   <input
                     type="file"
-                    onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                    onChange={handlePraticaFileSelect}
                     className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/50 dark:file:text-indigo-300"
                   />
+                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                    Limite per singolo upload: {uploadLimitMb} MB. Qualsiasi file più grande verrà rifiutato
+                    dal backend e te ne verrà segnalato l'errore tramite il toast.
+                  </p>
                   {uploadFile && (
                     <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">
                       File: {uploadFile.name} ({(uploadFile.size / 1024).toFixed(0)} KB)
@@ -1898,7 +1926,8 @@ export function PraticaDetailPage() {
               </div>
             </div>
           </div>
-        )}
+        </BodyPortal>
+      )}
       </div>
     );
   };
@@ -2042,6 +2071,7 @@ export function PraticaDetailPage() {
 
         {/* Modal Alert Form */}
         {showAlertForm && (
+        <BodyPortal>
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -2152,10 +2182,12 @@ export function PraticaDetailPage() {
               </div>
             </div>
           </div>
-        )}
+        </BodyPortal>
+      )}
 
         {/* Modal Alert Detail */}
         {selectedAlert && (
+        <BodyPortal>
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedAlert(null)} />
             <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[80vh] overflow-hidden flex flex-col">
@@ -2228,7 +2260,8 @@ export function PraticaDetailPage() {
               </div>
             </div>
           </div>
-        )}
+        </BodyPortal>
+      )}
       </div>
     );
   };
@@ -2421,6 +2454,7 @@ export function PraticaDetailPage() {
 
         {/* Modal Ticket Form */}
         {showTicketForm && (
+        <BodyPortal>
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -2501,10 +2535,12 @@ export function PraticaDetailPage() {
               </div>
             </div>
           </div>
-        )}
+        </BodyPortal>
+      )}
 
         {/* Modal Ticket Detail */}
         {selectedTicket && (
+        <BodyPortal>
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedTicket(null)} />
             <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[80vh] overflow-hidden flex flex-col">
@@ -2586,7 +2622,8 @@ export function PraticaDetailPage() {
               </div>
             </div>
           </div>
-        )}
+        </BodyPortal>
+      )}
       </div>
     );
   };
@@ -3105,9 +3142,10 @@ export function PraticaDetailPage() {
 
       {/* Modal Cambio Fase */}
       {showCambioFase && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseCambioFase} />
-          <div className="relative z-10 w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+        <BodyPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseCambioFase} />
+            <div className="relative z-10 w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Avanza fase</h2>
               <button onClick={handleCloseCambioFase} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
@@ -3167,9 +3205,10 @@ export function PraticaDetailPage() {
 
       {/* Modal Storico Fase */}
       {selectedStoricoFase && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedStoricoFase(null)} />
-          <div className="relative z-10 w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+        <BodyPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedStoricoFase(null)} />
+            <div className="relative z-10 w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-3">
                 <div

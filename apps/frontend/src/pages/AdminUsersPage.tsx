@@ -7,6 +7,7 @@ import { studiApi, type Studio } from '../api/studi';
 import { CustomSelect } from '../components/ui/CustomSelect';
 import { useToast } from '../components/ui/ToastProvider';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
+import { BodyPortal } from '../components/ui/BodyPortal';
 import { Pagination } from '../components/Pagination';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -396,8 +397,9 @@ export function AdminUsersPage() {
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 dark:bg-slate-800 max-h-[90vh] overflow-hidden flex flex-col">
+        <BodyPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-md rounded-lg bg-white p-6 dark:bg-slate-800 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 {isEditing ? 'Modifica utente' : 'Nuovo utente'}
@@ -537,14 +539,16 @@ export function AdminUsersPage() {
                 </button>
               </div>
             </form>
+            </div>
           </div>
-        </div>
+        </BodyPortal>
       )}
 
       {/* Reset Password Modal */}
       {showResetPasswordModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 dark:bg-slate-800 max-h-[90vh] overflow-hidden flex flex-col">
+        <BodyPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-md rounded-lg bg-white p-6 dark:bg-slate-800 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 Reimposta password
@@ -594,8 +598,9 @@ export function AdminUsersPage() {
                 </button>
               </div>
             </form>
+            </div>
           </div>
-        </div>
+        </BodyPortal>
       )}
 
       <ConfirmDialog />

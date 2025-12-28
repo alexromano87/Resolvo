@@ -25,6 +25,7 @@ import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import { Pagination } from '../components/Pagination';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { BodyPortal } from '../components/ui/BodyPortal';
 
 type FiltroStato = 'tutti' | 'aperto' | 'in_gestione' | 'chiuso';
 
@@ -666,32 +667,33 @@ export function TicketsPage() {
 
       {/* Modal Form */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => {
-              setShowModal(false);
-              setSubmitAttempted(false);
-            }}
-          />
-        <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                {isEditing ? 'Modifica Ticket' : 'Nuovo Ticket'}
-              </h2>
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  setSubmitAttempted(false);
-                }}
-                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+        <BodyPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => {
+                setShowModal(false);
+                setSubmitAttempted(false);
+              }}
+            />
+            <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+              <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                  {isEditing ? 'Modifica Ticket' : 'Nuovo Ticket'}
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowModal(false);
+                    setSubmitAttempted(false);
+                  }}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
-            <div className="flex-1 overflow-auto p-4 space-y-4">
-              <div>
+              <div className="flex-1 overflow-auto p-4 space-y-4">
+                <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                   {isCliente ? 'Pratica *' : 'Pratica (opzionale)'}
                 </label>
@@ -794,13 +796,15 @@ export function TicketsPage() {
             </div>
           </div>
         </div>
+      </BodyPortal>
       )}
 
       {/* Chat Modal */}
       {showChatModal && selectedTicket && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowChatModal(false)} />
-          <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+        <BodyPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowChatModal(false)} />
+            <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <div>
                 <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
@@ -901,14 +905,16 @@ export function TicketsPage() {
                 </div>
               </div>
             )}
+            </div>
           </div>
-        </div>
+        </BodyPortal>
       )}
 
       {/* Detail Modal */}
       {showDetailModal && selectedTicket && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <BodyPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between gap-4 p-6 border-b border-slate-200 dark:border-slate-700">
               <div className="flex-1">
@@ -1081,8 +1087,9 @@ export function TicketsPage() {
                 Chiudi
               </button>
             </div>
+            </div>
           </div>
-        </div>
+        </BodyPortal>
       )}
 
       <ConfirmDialog />

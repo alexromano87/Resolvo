@@ -1,0 +1,38 @@
+import { Repository } from 'typeorm';
+import { Alert } from './alert.entity';
+import { CreateAlertDto } from './dto/create-alert.dto';
+import { UpdateAlertDto } from './dto/update-alert.dto';
+import { AddMessaggioDto } from './dto/add-messaggio.dto';
+import { Pratica } from '../pratiche/pratica.entity';
+import { Avvocato } from '../avvocati/avvocato.entity';
+import { EmailService } from '../notifications/email.service';
+import type { CurrentUserData } from '../auth/current-user.decorator';
+import { type PaginationOptions } from '../common/pagination';
+export declare class AlertsService {
+    private alertRepository;
+    private praticaRepository;
+    private avvocatiRepository;
+    private readonly emailService;
+    constructor(alertRepository: Repository<Alert>, praticaRepository: Repository<Pratica>, avvocatiRepository: Repository<Avvocato>, emailService: EmailService);
+    create(createAlertDto: CreateAlertDto): Promise<Alert>;
+    findAll(includeInactive?: boolean, studioId?: string, pagination?: PaginationOptions): Promise<Alert[]>;
+    findAllForUser(user: CurrentUserData, includeInactive?: boolean, pagination?: PaginationOptions): Promise<Alert[]>;
+    findAllByPratica(praticaId: string, includeInactive?: boolean, pagination?: PaginationOptions): Promise<Alert[]>;
+    findAllByPraticaForUser(praticaId: string, user: CurrentUserData, includeInactive?: boolean, pagination?: PaginationOptions): Promise<Alert[]>;
+    findAllByStato(stato: 'in_gestione' | 'chiuso', includeInactive?: boolean, studioId?: string, pagination?: PaginationOptions): Promise<Alert[]>;
+    findAllByStatoForUser(stato: 'in_gestione' | 'chiuso', user: CurrentUserData, includeInactive?: boolean, pagination?: PaginationOptions): Promise<Alert[]>;
+    findOne(id: string): Promise<Alert>;
+    findOneForUser(id: string, user: CurrentUserData): Promise<Alert>;
+    update(id: string, updateAlertDto: UpdateAlertDto, user?: CurrentUserData): Promise<Alert>;
+    deactivate(id: string, user?: CurrentUserData): Promise<Alert>;
+    reactivate(id: string, user?: CurrentUserData): Promise<Alert>;
+    remove(id: string, user?: CurrentUserData): Promise<void>;
+    addMessaggio(id: string, addMessaggioDto: AddMessaggioDto, user?: CurrentUserData): Promise<Alert>;
+    chiudiAlert(id: string): Promise<Alert>;
+    riapriAlert(id: string): Promise<Alert>;
+    private isValidStatusTransition;
+    private buildPraticaLabel;
+    private sendAlertEmail;
+    private applyAccessFilter;
+    private canAvvocatoSeeAll;
+}

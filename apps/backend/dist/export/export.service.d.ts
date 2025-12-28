@@ -1,0 +1,33 @@
+import { Repository } from 'typeorm';
+import { Pratica } from '../pratiche/pratica.entity';
+import { Cliente } from '../clienti/cliente.entity';
+import { Debitore } from '../debitori/debitore.entity';
+import { Avvocato } from '../avvocati/avvocato.entity';
+import { MovimentoFinanziario } from '../movimenti-finanziari/movimento-finanziario.entity';
+import { Documento } from '../documenti/documento.entity';
+import { Alert } from '../alerts/alert.entity';
+import { Ticket } from '../tickets/ticket.entity';
+import { AuditLog } from '../audit/audit-log.entity';
+import { User } from '../users/user.entity';
+import { ExportRequestDto } from './dto/export-request.dto';
+export declare class ExportService {
+    private praticheRepo;
+    private clientiRepo;
+    private debitoriRepo;
+    private avvocatiRepo;
+    private movimentiRepo;
+    private documentiRepo;
+    private alertsRepo;
+    private ticketsRepo;
+    private auditLogsRepo;
+    private usersRepo;
+    constructor(praticheRepo: Repository<Pratica>, clientiRepo: Repository<Cliente>, debitoriRepo: Repository<Debitore>, avvocatiRepo: Repository<Avvocato>, movimentiRepo: Repository<MovimentoFinanziario>, documentiRepo: Repository<Documento>, alertsRepo: Repository<Alert>, ticketsRepo: Repository<Ticket>, auditLogsRepo: Repository<AuditLog>, usersRepo: Repository<User>);
+    exportData(dto: ExportRequestDto): Promise<Buffer>;
+    backupStudio(studioId: string, includeDocuments?: boolean, includeAuditLogs?: boolean): Promise<Buffer>;
+    private fetchData;
+    private generateCSV;
+    private generateExcel;
+    private generateJSON;
+    private sanitizeDocumenti;
+    private flattenObject;
+}

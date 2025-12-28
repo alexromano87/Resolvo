@@ -27,9 +27,12 @@ import type { Cartella, CreateCartellaDto, UpdateCartellaDto } from '../api/cart
 import { fetchPratiche, type Pratica, getDebitoreDisplayName } from '../api/pratiche';
 import { CustomSelect } from '../components/ui/CustomSelect';
 import { useToast } from '../components/ui/ToastProvider';
+import { BodyPortal } from '../components/ui/BodyPortal';
 
 export function DocumentiPage() {
   const { success, error: toastError } = useToast();
+  const uploadLimitMb = Number(import.meta.env.VITE_UPLOAD_DOCUMENT_MAX_MB ?? '50');
+  const uploadLimitBytes = uploadLimitMb * 1024 * 1024;
   const [documenti, setDocumenti] = useState<Documento[]>([]);
   const [cartelle, setCartelle] = useState<Cartella[]>([]);
   const [allCartelle, setAllCartelle] = useState<Cartella[]>([]);
@@ -173,6 +176,14 @@ export function DocumentiPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      if (file.size > uploadLimitBytes) {
+        toastError(`Il file supera il limite massimo di ${uploadLimitMb} MB`);
+        setUploadFile(null);
+        setUploadNome('');
+        e.target.value = '';
+        return;
+      }
+
       setUploadFile(file);
       setUploadNome(file.name);
     }
@@ -649,101 +660,32 @@ export function DocumentiPage() {
 
       {/* Upload Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                Carica Documento
-              </h2>
-              <button
-                onClick={() => {
-                  setShowUploadModal(false);
-                  resetUploadForm();
-                }}
-                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-2xl transition"
-              >
-                <X className="h-5 w-5 text-slate-500 dark:text-slate-400" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-auto p-6 pt-4">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    File *
-                  </label>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    onChange={handleFileSelect}
-                    className="w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-2xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/50 dark:file:text-indigo-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Nome *
-                  </label>
-                  <input
-                    type="text"
-                    value={uploadNome}
-                    onChange={(e) => setUploadNome(e.target.value)}
-                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-2xl bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Descrizione
-                  </label>
-                  <textarea
-                    value={uploadDescrizione}
-                    onChange={(e) => setUploadDescrizione(e.target.value)}
-                    rows={3}
-                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-2xl bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Pratica associata
-                  </label>
-                  <CustomSelect
-                    options={praticaOptionalOptions}
-                    value={uploadPraticaId || selectedPraticaId || ''}
-                    onChange={setUploadPraticaId}
-                    placeholder="Seleziona pratica..."
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-6">
+        <BodyPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
+              <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                  Carica Documento
+                </h2>
                 <button
                   onClick={() => {
                     setShowUploadModal(false);
                     resetUploadForm();
                   }}
-                  className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-600 transition"
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-2xl transition"
                 >
-                  Annulla
-                </button>
-                <button
-                  onClick={handleUpload}
-                  disabled={!uploadFile || !uploadNome}
-                  className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-2xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                >
-                  Carica
+                  <X className="h-5 w-5 text-slate-500 dark:text-slate-400" />
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+
+              <div className="flex-1 overflow-auto p-6 pt-4">
+                <div className="space-y-4">
 
       {/* Folder Modal */}
       {showFolderModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <BodyPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
                 {editingFolder ? 'Modifica Cartella' : 'Nuova Cartella'}
@@ -845,8 +787,9 @@ export function DocumentiPage() {
 
       {/* Folder View Modal */}
       {showFolderViewModal && viewingFolder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <BodyPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-3">
                 <FolderOpen
@@ -959,8 +902,9 @@ export function DocumentiPage() {
 
       {/* Move Document Modal */}
       {showMoveModal && documentToMove && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <BodyPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
                 Sposta Documento
@@ -1036,8 +980,9 @@ export function DocumentiPage() {
 
       {/* View Document Modal */}
       {showViewModal && viewingDocument && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <BodyPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-3">
                 {getFileIcon(viewingDocument.tipo)}

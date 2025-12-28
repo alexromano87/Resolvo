@@ -1,0 +1,33 @@
+import { ClienteDebitore } from '../relazioni/cliente-debitore.entity';
+import { Studio } from '../studi/studio.entity';
+export type TipoSoggetto = 'persona_fisica' | 'persona_giuridica';
+export type TipologiaAzienda = 'impresa_individuale' | 'impresa_individuale_agricola' | 'srl' | 'spa' | 'scpa' | 'srl_agricola' | 'snc' | 'sas';
+export declare class Debitore {
+    id: string;
+    attivo: boolean;
+    studioId: string | null;
+    studio: Studio | null;
+    tipoSoggetto: TipoSoggetto;
+    nome?: string;
+    cognome?: string;
+    codiceFiscale?: string;
+    dataNascita?: Date;
+    luogoNascita?: string;
+    ragioneSociale?: string;
+    partitaIva?: string;
+    tipologia?: TipologiaAzienda;
+    sedeLegale?: string;
+    sedeOperativa?: string;
+    indirizzo?: string;
+    cap?: string;
+    citta?: string;
+    provincia?: string;
+    nazione?: string;
+    referente?: string;
+    telefono?: string;
+    email?: string;
+    pec?: string;
+    clientiDebitori: ClienteDebitore[];
+    createdAt: Date;
+    updatedAt: Date;
+}
