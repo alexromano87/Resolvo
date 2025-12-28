@@ -1,0 +1,54 @@
+import { Repository } from 'typeorm';
+import { Pratica } from './pratica.entity';
+import { Avvocato } from '../avvocati/avvocato.entity';
+import { User } from '../users/user.entity';
+import { CreatePraticaDto } from './dto/create-pratica.dto';
+import { UpdatePraticaDto } from './dto/update-pratica.dto';
+import { CambiaFaseDto } from './dto/cambia-fase.dto';
+import { FasiService } from '../fasi/fasi.service';
+import type { CurrentUserData } from '../auth/current-user.decorator';
+import { NotificationsService } from '../notifications/notifications.service';
+import { type PaginationOptions } from '../common/pagination';
+export declare class PraticheService {
+    private readonly repo;
+    private readonly avvocatiRepo;
+    private readonly usersRepo;
+    private readonly fasiService;
+    private readonly notificationsService;
+    constructor(repo: Repository<Pratica>, avvocatiRepo: Repository<Avvocato>, usersRepo: Repository<User>, fasiService: FasiService, notificationsService: NotificationsService);
+    findAll(includeInactive?: boolean, studioId?: string, pagination?: PaginationOptions): Promise<Pratica[]>;
+    findAllForUser(user: CurrentUserData, includeInactive?: boolean, pagination?: PaginationOptions): Promise<Pratica[]>;
+    findByCliente(clienteId: string, includeInactive?: boolean, pagination?: PaginationOptions): Promise<Pratica[]>;
+    findByClienteForUser(clienteId: string, user: CurrentUserData, includeInactive?: boolean, pagination?: PaginationOptions): Promise<Pratica[]>;
+    findByDebitore(debitoreId: string, includeInactive?: boolean, pagination?: PaginationOptions): Promise<Pratica[]>;
+    findByDebitoreForUser(debitoreId: string, user: CurrentUserData, includeInactive?: boolean, pagination?: PaginationOptions): Promise<Pratica[]>;
+    findOne(id: string): Promise<Pratica>;
+    findOneForUser(id: string, user: CurrentUserData): Promise<Pratica>;
+    private filterByAssignment;
+    private canAvvocatoSeeAll;
+    private isUserAssignedToPratica;
+    canUserModifyPratica(user: CurrentUserData): Promise<boolean>;
+    create(dto: CreatePraticaDto): Promise<Pratica>;
+    update(id: string, dto: UpdatePraticaDto): Promise<Pratica>;
+    cambiaFase(id: string, dto: CambiaFaseDto): Promise<Pratica>;
+    riapri(id: string, nuovaFaseId?: string): Promise<Pratica>;
+    deactivate(id: string): Promise<Pratica>;
+    reactivate(id: string): Promise<Pratica>;
+    remove(id: string): Promise<void>;
+    countByStato(): Promise<{
+        aperte: number;
+        chiusePositive: number;
+        chiuseNegative: number;
+        totali: number;
+    }>;
+    calcolaTotaliFinanziari(): Promise<{
+        capitaleAffidato: number;
+        capitaleRecuperato: number;
+        capitaleDaRecuperare: number;
+        anticipazioni: number;
+        anticipazioniRecuperate: number;
+        compensiMaturati: number;
+        compensiLiquidati: number;
+    }>;
+    countByFase(): Promise<Record<string, number>>;
+}

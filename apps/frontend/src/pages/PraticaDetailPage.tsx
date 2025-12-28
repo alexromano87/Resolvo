@@ -1312,8 +1312,7 @@ export function PraticaDetailPage() {
               )}
             </div>
           </div>
-        </BodyPortal>
-      )}
+        )}
 
         <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80">
           <div className="flex items-center gap-2 mb-2">
@@ -1508,8 +1507,7 @@ export function PraticaDetailPage() {
               </div>
             </div>
           </div>
-        </BodyPortal>
-      )}
+        )}
       </div>
     );
   };
@@ -1968,14 +1966,21 @@ export function PraticaDetailPage() {
     };
 
     const handleChiudiAlert = async (alertId: string) => {
-      try {
-        await alertsApi.chiudi(alertId);
-        success('Alert chiuso');
-        await loadAlerts();
-        setSelectedAlert(null);
-      } catch (err) {
-        console.error('Errore chiusura alert:', err);
-        toastError('Errore durante la chiusura dell\'alert');
+      if (await confirm({
+        title: 'Chiudi alert',
+        message: 'Confermi la chiusura di questo alert?',
+        confirmText: 'Chiudi',
+        variant: 'warning',
+      })) {
+        try {
+          await alertsApi.chiudi(alertId);
+          success('Alert chiuso');
+          await loadAlerts();
+          setSelectedAlert(null);
+        } catch (err) {
+          console.error('Errore chiusura alert:', err);
+          toastError('Errore durante la chiusura dell\'alert');
+        }
       }
     };
 
@@ -3201,6 +3206,7 @@ export function PraticaDetailPage() {
             </div>
           </div>
         </div>
+        </BodyPortal>
       )}
 
       {/* Modal Storico Fase */}
@@ -3299,6 +3305,7 @@ export function PraticaDetailPage() {
             </div>
           </div>
         </div>
+        </BodyPortal>
       )}
 
       <ConfirmDialog />

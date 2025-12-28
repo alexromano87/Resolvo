@@ -1,0 +1,37 @@
+import { User } from '../users/user.entity';
+import { Pratica } from '../pratiche/pratica.entity';
+import { Cliente } from '../clienti/cliente.entity';
+import { Debitore } from '../debitori/debitore.entity';
+import { Avvocato } from '../avvocati/avvocato.entity';
+import { MovimentoFinanziario } from '../movimenti-finanziari/movimento-finanziario.entity';
+import { Alert } from '../alerts/alert.entity';
+import { Ticket } from '../tickets/ticket.entity';
+import { Documento } from '../documenti/documento.entity';
+import { Cartella } from '../cartelle/cartella.entity';
+export declare class Studio {
+    id: string;
+    nome: string;
+    ragioneSociale: string;
+    partitaIva: string;
+    codiceFiscale: string;
+    indirizzo: string;
+    citta: string;
+    cap: string;
+    provincia: string;
+    telefono: string;
+    email: string;
+    pec: string;
+    attivo: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    users: User[];
+    pratiche: Pratica[];
+    clienti: Cliente[];
+    debitori: Debitore[];
+    avvocati: Avvocato[];
+    movimentiFinanziari: MovimentoFinanziario[];
+    alerts: Alert[];
+    tickets: Ticket[];
+    documenti: Documento[];
+    cartelle: Cartella[];
+}

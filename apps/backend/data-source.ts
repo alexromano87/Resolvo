@@ -8,7 +8,7 @@ export const AppDataSource = new DataSource({
   port: Number(process.env.DB_PORT || 3307),
   username: process.env.DB_USERNAME || 'rc_user',
   password: process.env.DB_PASSWORD || 'rc_pass',
-  autoLoadEntities: true,
+  entities: [`${__dirname}/src/**/*.entity{.ts,.js}`],
   migrationsTableName: 'typeorm_migrations',
   migrations: ['src/migrations/*.ts'],
   synchronize: false,

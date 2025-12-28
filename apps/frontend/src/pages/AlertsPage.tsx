@@ -255,12 +255,19 @@ export function AlertsPage() {
   };
 
   const handleRiapri = async (id: string) => {
-    try {
-      await alertsApi.riapri(id);
-      success('Alert riaperto con successo');
-      loadData();
-    } catch (err: any) {
-      toastError('Errore durante la riapertura', 'Errore');
+    if (await confirm({
+      title: 'Prendi in gestione alert',
+      message: 'Confermi di rimettere in gestione questo alert?',
+      confirmText: 'Conferma',
+      variant: 'warning',
+    })) {
+      try {
+        await alertsApi.riapri(id);
+        success('Alert rimesso in gestione');
+        loadData();
+      } catch (err: any) {
+        toastError('Errore durante la riapertura', 'Errore');
+      }
     }
   };
 
