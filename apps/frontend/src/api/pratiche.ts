@@ -24,6 +24,7 @@ export interface StoricoFase {
 
 export interface Pratica {
   id: string;
+  numeroPratica?: string; // Numero progressivo formato: numero/anno
   attivo: boolean;
   studioId?: string | null;
 

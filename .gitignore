@@ -1,0 +1,24 @@
+# Environment variables (NEVER commit these!)
+.env
+.env.local
+.env.*.local
+apps/backend/.env
+apps/frontend/.env
+
+# dati MySQL / DB locali
+infra/db/data/
+infra/db/.DS_Store
+
+# Backup files
+backups/
+*.sql
+
+# Build artifacts
+apps/backend/dist/tsconfig.build.tsbuildinfo
+
+# System files
+.DS_Store
+
+# Nested gitignore files
+apps/.DS_Store
+apps/backend/.gitignore

@@ -1,15 +1,30 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { Studio } from './studio.entity';
 import { CreateStudioDto } from './dto/create-studio.dto';
 import { UpdateStudioDto } from './dto/update-studio.dto';
+import { Cliente } from '../clienti/cliente.entity';
+import { Debitore } from '../debitori/debitore.entity';
+import { User } from '../users/user.entity';
+import { Avvocato } from '../avvocati/avvocato.entity';
+import { Pratica } from '../pratiche/pratica.entity';
 
 @Injectable()
 export class StudiService {
   constructor(
     @InjectRepository(Studio)
     private studioRepository: Repository<Studio>,
+    @InjectRepository(Cliente)
+    private clientiRepository: Repository<Cliente>,
+    @InjectRepository(Debitore)
+    private debitoriRepository: Repository<Debitore>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+    @InjectRepository(Avvocato)
+    private avvocatiRepository: Repository<Avvocato>,
+    @InjectRepository(Pratica)
+    private praticheRepository: Repository<Pratica>,
   ) {}
 
   async findAll(): Promise<Studio[]> {
@@ -163,6 +178,86 @@ export class StudiService {
         capitaleRecuperato,
         percentualeRecupero: capitaleAffidato > 0 ? ((capitaleRecuperato / capitaleAffidato) * 100).toFixed(2) : '0.00',
       },
+    };
+  }
+
+  async getOrphanedRecords() {
+    const [clienti, debitori, users, avvocati, pratiche] = await Promise.all([
+      this.clientiRepository.find({
+        where: { studioId: IsNull() },
+        order: { createdAt: 'DESC' },
+      }),
+      this.debitoriRepository.find({
+        where: { studioId: IsNull() },
+        order: { createdAt: 'DESC' },
+      }),
+      this.usersRepository.find({
+        where: { studioId: IsNull() },
+        order: { createdAt: 'DESC' },
+      }),
+      this.avvocatiRepository.find({
+        where: { studioId: IsNull() },
+        order: { createdAt: 'DESC' },
+      }),
+      this.praticheRepository.find({
+        where: { studioId: IsNull() },
+        order: { createdAt: 'DESC' },
+      }),
+    ]);
+
+    return {
+      clienti,
+      debitori,
+      users,
+      avvocati,
+      pratiche,
+      totale: clienti.length + debitori.length + users.length + avvocati.length + pratiche.length,
+    };
+  }
+
+  async assignOrphanedRecords(
+    entityType: string,
+    recordIds: string[],
+    studioId: string,
+  ) {
+    // Verifica che lo studio esista
+    const studio = await this.findOne(studioId);
+    if (!studio) {
+      throw new NotFoundException('Studio non trovato');
+    }
+
+    let repository: Repository<any>;
+    switch (entityType) {
+      case 'clienti':
+        repository = this.clientiRepository;
+        break;
+      case 'debitori':
+        repository = this.debitoriRepository;
+        break;
+      case 'users':
+        repository = this.usersRepository;
+        break;
+      case 'avvocati':
+        repository = this.avvocatiRepository;
+        break;
+      case 'pratiche':
+        repository = this.praticheRepository;
+        break;
+      default:
+        throw new ConflictException('Tipo di entità non supportato');
+    }
+
+    // Aggiorna i record assegnandoli allo studio
+    const result = await repository
+      .createQueryBuilder()
+      .update()
+      .set({ studioId })
+      .whereInIds(recordIds)
+      .execute();
+
+    return {
+      success: true,
+      updated: result.affected || 0,
     };
   }
 }

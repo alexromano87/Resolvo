@@ -16,6 +16,7 @@ import { AdminGuard } from '../auth/admin.guard';
 import { AuditLogService } from '../audit/audit-log.service';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { CurrentUserData } from '../auth/current-user.decorator';
+import { RateLimit } from '../common/rate-limit.decorator';
 
 @Controller('export')
 @UseGuards(JwtAuthGuard, AdminGuard)
@@ -26,6 +27,7 @@ export class ExportController {
   ) {}
 
   @Post('data')
+  @RateLimit({ limit: 10, windowMs: 60 * 60 * 1000 })  // 10 per hour
   async exportData(
     @CurrentUser() user: CurrentUserData,
     @Body() dto: ExportRequestDto,
@@ -87,6 +89,7 @@ export class ExportController {
   }
 
   @Post('backup-studio')
+  @RateLimit({ limit: 5, windowMs: 60 * 60 * 1000 })  // 5 per hour
   async backupStudio(
     @CurrentUser() user: CurrentUserData,
     @Body() dto: BackupStudioDto,

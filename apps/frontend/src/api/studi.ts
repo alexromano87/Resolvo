@@ -47,6 +47,15 @@ export interface UpdateStudioDto {
   attivo?: boolean;
 }
 
+export interface OrphanedRecords {
+  clienti: any[];
+  debitori: any[];
+  users: any[];
+  avvocati: any[];
+  pratiche: any[];
+  totale: number;
+}
+
 export const studiApi = {
   getAll: async (): Promise<Studio[]> => {
     return api.get<Studio[]>('/studi');
@@ -74,5 +83,21 @@ export const studiApi = {
 
   toggleActive: async (id: string): Promise<Studio> => {
     return api.put<Studio>(`/studi/${id}/toggle-active`, {});
+  },
+
+  getOrphanedRecords: async (): Promise<OrphanedRecords> => {
+    return api.get<OrphanedRecords>('/studi/orphaned/records');
+  },
+
+  assignOrphanedRecords: async (
+    entityType: string,
+    recordIds: string[],
+    studioId: string
+  ): Promise<{ success: boolean; updated: number }> => {
+    return api.post<{ success: boolean; updated: number }>('/studi/orphaned/assign', {
+      entityType,
+      recordIds,
+      studioId,
+    });
   },
 };

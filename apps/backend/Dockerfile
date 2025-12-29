@@ -19,6 +19,9 @@ RUN npm run build
 FROM node:20-alpine AS runner
 WORKDIR /usr/src/app
 
+# Install MySQL client for backup/restore functionality
+RUN apk add --no-cache mysql-client
+
 COPY package*.json ./
 # Usa i node_modules già installati (dev + prod) dal builder
 COPY --from=builder /usr/src/app/node_modules ./node_modules

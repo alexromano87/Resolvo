@@ -53,6 +53,10 @@ export class Pratica {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  // --- Numero progressivo pratica (formato: numero/anno) ---
+  @Column({ type: 'varchar', length: 50, nullable: true, unique: true })
+  numeroPratica?: string;
+
   // --- Stato attivo/disattivato (soft-delete) ---
   @Column({ default: true })
   attivo: boolean;

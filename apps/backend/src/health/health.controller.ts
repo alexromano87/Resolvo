@@ -2,12 +2,14 @@ import { Controller, Get } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { CacheService } from '../common/cache.service';
+import { PerformanceService } from '../monitoring/performance.service';
 
 @Controller('health')
 export class HealthController {
   constructor(
     @InjectDataSource() private readonly dataSource: DataSource,
     private readonly cacheService: CacheService,
+    private readonly performanceService: PerformanceService,
   ) {}
 
   @Get()
@@ -60,5 +62,18 @@ export class HealthController {
   liveness() {
     // For Kubernetes liveness probe - checks if app is alive
     return { status: 'alive', uptime: process.uptime() };
+  }
+
+  @Get('metrics')
+  getMetrics() {
+    // Performance metrics endpoint
+    const systemHealth = this.performanceService.getHealthStatus();
+    const allMetrics = this.performanceService.getAllMetrics();
+
+    return {
+      health: systemHealth,
+      metrics: allMetrics,
+      timestamp: new Date().toISOString(),
+    };
   }
 }

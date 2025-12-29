@@ -40,6 +40,7 @@ async function bootstrap() {
     }
   } finally {
     await app.close();
+    process.exit(0);
   }
 }
 

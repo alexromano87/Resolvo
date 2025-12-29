@@ -153,6 +153,64 @@ export class CacheService {
     await this.delPattern('lookup:*');
   }
 
+  /**
+   * Incrementa un contatore atomicamente con TTL
+   * Usato per rate limiting
+   */
+  async increment(key: string, ttlSeconds: number): Promise<number> {
+    if (!this.redis) {
+      throw new Error('Redis not available');
+    }
+
+    try {
+      // Pipeline per operazioni atomiche
+      const pipeline = this.redis.pipeline();
+      pipeline.incr(key);
+      pipeline.expire(key, ttlSeconds);
+
+      const results = await pipeline.exec();
+      if (!results || results[0][1] === null) {
+        throw new Error('Failed to increment key');
+      }
+
+      return results[0][1] as number;
+    } catch (error) {
+      this.logger.error(`Cache increment error for key ${key}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Decrementa un contatore atomicamente
+   */
+  async decrement(key: string): Promise<number> {
+    if (!this.redis) {
+      throw new Error('Redis not available');
+    }
+
+    try {
+      const value = await this.redis.decr(key);
+      return value;
+    } catch (error) {
+      this.logger.error(`Cache decrement error for key ${key}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Ottieni TTL rimanente per una chiave
+   */
+  async getTTL(key: string): Promise<number> {
+    if (!this.redis) return -1;
+
+    try {
+      return await this.redis.ttl(key);
+    } catch (error) {
+      this.logger.error(`Cache TTL error for key ${key}:`, error);
+      return -1;
+    }
+  }
+
   async onModuleDestroy() {
     if (this.redis) {
       await this.redis.quit();

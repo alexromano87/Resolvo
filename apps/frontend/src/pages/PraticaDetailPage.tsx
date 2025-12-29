@@ -647,7 +647,7 @@ export function PraticaDetailPage() {
             <div>
               <div class="badge">Report pratica chiusa</div>
               <h1>${clienteNome} vs ${debitoreNome}</h1>
-              <p class="meta">Pratica #${pratica.id.slice(0, 8)} • Fase: ${getFaseById(pratica.faseId)?.nome || 'N/D'} • Generato: ${formatDateTime(new Date())}</p>
+              <p class="meta">Numero Pratica: ${pratica.numeroPratica || 'N/D'} • Fase: ${getFaseById(pratica.faseId)?.nome || 'N/D'} • Generato: ${formatDateTime(new Date())}</p>
             </div>
             <div class="studio-block">
               <div class="studio-logo">
@@ -3002,7 +3002,7 @@ export function PraticaDetailPage() {
                   {pratica.cliente?.ragioneSociale} vs {getDebitoreDisplayName(pratica.debitore)}
                 </h1>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                  Pratica #{pratica.id.slice(0, 8)} • Fase: {getFaseById(pratica.faseId)?.nome || 'N/D'}
+                  Numero Pratica: {pratica.numeroPratica || 'N/D'} • Fase: {getFaseById(pratica.faseId)?.nome || 'N/D'}
                 </p>
               </div>
             </div>

@@ -11,50 +11,43 @@ import { TwoFactorLoginVerifyDto, TwoFactorRequestDto, TwoFactorVerifyDto } from
 import { PasswordResetRequestDto, PasswordResetConfirmDto } from './dto/password-reset.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RateLimit } from '../common/rate-limit.decorator';
-import { RateLimitGuard } from '../common/rate-limit.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @UseGuards(RateLimitGuard)
-  @RateLimit({ limit: 3, windowMs: 60 * 60 * 1000 })
+  @RateLimit({ limit: 3, windowMs: 60 * 60 * 1000 })  // 3 per hour
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 
   @Post('login')
-  @UseGuards(RateLimitGuard)
-  @RateLimit({ limit: 5, windowMs: 5 * 60 * 1000 })
+  @RateLimit({ limit: 5, windowMs: 60 * 1000 })  // 5 per minute (brute-force protection)
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
 
   @Post('password-reset/request')
-  @UseGuards(RateLimitGuard)
-  @RateLimit({ limit: 3, windowMs: 10 * 60 * 1000 })
+  @RateLimit({ limit: 3, windowMs: 15 * 60 * 1000 })  // 3 per 15 minutes
   async requestPasswordReset(@Body() dto: PasswordResetRequestDto) {
     return this.authService.requestPasswordReset(dto.email);
   }
 
   @Post('password-reset/confirm')
-  @UseGuards(RateLimitGuard)
-  @RateLimit({ limit: 5, windowMs: 10 * 60 * 1000 })
+  @RateLimit({ limit: 5, windowMs: 15 * 60 * 1000 })  // 5 per 15 minutes
   async confirmPasswordReset(@Body() dto: PasswordResetConfirmDto) {
     return this.authService.confirmPasswordReset(dto.email, dto.token, dto.newPassword);
   }
 
   @Post('login/2fa')
-  @UseGuards(RateLimitGuard)
-  @RateLimit({ limit: 5, windowMs: 5 * 60 * 1000 })
+  @RateLimit({ limit: 5, windowMs: 60 * 1000 })  // 5 per minute
   async verifyTwoFactorLogin(@Body() dto: TwoFactorLoginVerifyDto) {
     return this.authService.verifyTwoFactorLogin(dto.userId, dto.code);
   }
 
   @Post('refresh')
-  @UseGuards(RateLimitGuard)
-  @RateLimit({ limit: 15, windowMs: 5 * 60 * 1000 })
+  @RateLimit({ limit: 15, windowMs: 60 * 1000 })  // 15 per minute
   async refresh(@Body() dto: RefreshTokenDto) {
     return this.authService.refreshToken(dto.userId, dto.refreshToken);
   }

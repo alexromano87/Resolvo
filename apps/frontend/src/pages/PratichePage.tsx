@@ -110,9 +110,8 @@ export function PratichePage() {
 
   const [error, setError] = useState<string | null>(null);
 
-  // Load initial data
+  // Load initial data (don't load pratiche immediately)
   useEffect(() => {
-    loadPratiche();
     loadFasi();
     loadClienti();
     loadAvvocati();
@@ -129,10 +128,28 @@ export function PratichePage() {
     }
   }, [newForm.clienteId]);
 
+  // Load pratiche when a cliente is selected for filtering or when searching
+  useEffect(() => {
+    if (filterClienteId || searchTerm) {
+      loadPratiche();
+    } else {
+      // Clear pratiche when no cliente is selected and no search term
+      setPratiche([]);
+      setLoadingPratiche(false);
+    }
+  }, [filterClienteId, searchTerm, showInactive]);
+
   const loadPratiche = async () => {
     try {
       setLoadingPratiche(true);
-      const data = await fetchPratiche();
+      // Passa il clienteId al backend per filtrare lato server
+      const options: { includeInactive?: boolean; clienteId?: string } = {
+        includeInactive: showInactive,
+      };
+      if (filterClienteId) {
+        options.clienteId = filterClienteId;
+      }
+      const data = await fetchPratiche(options);
       setPratiche(data);
     } catch (err) {
       console.error('Errore caricamento pratiche:', err);
@@ -336,18 +353,16 @@ export function PratichePage() {
     }
   };
 
-  // Filtered pratiche
+  // Filtered pratiche (client-side filtering for search only)
+  // Il filtro per cliente e showInactive è già applicato lato server
   const filteredPratiche = pratiche.filter((p) => {
-    // Filter by cliente
-    if (filterClienteId && p.clienteId !== filterClienteId) return false;
-    // Filter by active status
-    if (!showInactive && !p.attivo) return false;
-    // Filter by search term
+    // Filter by search term (client-side per ricerca testuale)
     if (searchTerm) {
       const search = searchTerm.toLowerCase();
       const clienteMatch = p.cliente?.ragioneSociale?.toLowerCase().includes(search);
       const debitoreMatch = getDebitoreDisplayName(p.debitore).toLowerCase().includes(search);
-      if (!clienteMatch && !debitoreMatch) return false;
+      const praticaNumeroMatch = p.numeroPratica?.toLowerCase().includes(search) || false;
+      if (!clienteMatch && !debitoreMatch && !praticaNumeroMatch) return false;
     }
     return true;
   });
@@ -413,7 +428,7 @@ export function PratichePage() {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Cerca cliente o debitore..."
+                placeholder="Cerca cliente, debitore o numero pratica..."
                 className="w-full rounded-2xl border border-white/70 bg-white/90 py-2.5 pl-10 pr-4 text-sm text-slate-900 shadow-[0_12px_28px_rgba(15,23,42,0.12)] outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               />
             </div>
@@ -569,7 +584,10 @@ export function PratichePage() {
                     </div>
                   </div>
 
-                  <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-end">
+                  <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                      Pratica numero: {pratica.numeroPratica || 'N/D'}
+                    </span>
                     <span className="text-xs text-indigo-600 dark:text-indigo-400 group-hover:underline">
                       Vedi dettaglio →
                     </span>

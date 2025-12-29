@@ -46,26 +46,20 @@ async function bootstrap() {
   const nodeEnv = configService.get<string>('NODE_ENV', 'development');
   const isProduction = nodeEnv === 'production';
 
-  // Configurazione CORS dinamica
-  const allowedOrigins = [
-    'http://localhost:5173',           // Frontend dev Vite
-    'http://localhost:3000',           // Frontend dev alternativo
-    'http://localhost',                // Frontend Docker (porta 80)
-    'http://127.0.0.1:5173',          // Localhost alternativo
-    'http://127.0.0.1',               // Localhost alternativo (porta 80)
-    configService.get<string>('FRONTEND_URL'), // Da .env se presente
-  ];
+  // Configurazione CORS da variabile d'ambiente
+  const corsOriginsEnv = configService.get<string>('CORS_ORIGINS', '');
 
-  // In production, aggiungi dominio server
-  if (isProduction) {
-    const serverIp = '3.120.81.201';
-    allowedOrigins.push(
-      `http://${serverIp}`,
-      `https://${serverIp}`,
-      'http://resolvo.com',     // Se hai dominio
-      'https://resolvo.com',
-    );
-  }
+  // Parse CORS_ORIGINS (comma-separated)
+  const allowedOrigins = corsOriginsEnv
+    ? corsOriginsEnv.split(',').map(origin => origin.trim()).filter(Boolean)
+    : [
+        // Defaults per development locale
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'http://localhost',
+        'http://127.0.0.1:5173',
+        'http://127.0.0.1',
+      ];
 
   app.enableCors({
     origin: (origin, callback) => {

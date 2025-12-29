@@ -326,9 +326,41 @@ export class PraticheService {
   }
 
   /**
+   * Genera il prossimo numero pratica progressivo per l'anno corrente.
+   * Formato: numero/anno (es: 1/2025, 2/2025, etc.)
+   */
+  private async generateNumeroPratica(): Promise<string> {
+    const currentYear = new Date().getFullYear();
+
+    // Trova l'ultimo numero pratica per l'anno corrente
+    const lastPratica = await this.repo
+      .createQueryBuilder('pratica')
+      .where('pratica.numeroPratica LIKE :pattern', { pattern: `%/${currentYear}` })
+      .orderBy('pratica.createdAt', 'DESC')
+      .getOne();
+
+    let nextNumber = 1;
+    if (lastPratica?.numeroPratica) {
+      // Estrai il numero dalla stringa "numero/anno"
+      const parts = lastPratica.numeroPratica.split('/');
+      if (parts.length === 2) {
+        const lastNumber = parseInt(parts[0], 10);
+        if (!isNaN(lastNumber)) {
+          nextNumber = lastNumber + 1;
+        }
+      }
+    }
+
+    return `${nextNumber}/${currentYear}`;
+  }
+
+  /**
    * Crea una nuova pratica.
    */
   async create(dto: CreatePraticaDto): Promise<Pratica> {
+    // Genera il numero pratica progressivo
+    const numeroPratica = await this.generateNumeroPratica();
+
     // Determina la fase iniziale
     let faseIniziale;
     if (dto.faseId) {
@@ -380,6 +412,7 @@ export class PraticheService {
 
     const pratica = this.repo.create({
       ...dtoWithoutRelations,
+      numeroPratica,
       faseId: faseIniziale.id,
       aperta: dto.aperta !== undefined ? dto.aperta : true,
       storico,

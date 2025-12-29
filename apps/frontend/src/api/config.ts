@@ -27,20 +27,10 @@ function getApiBaseUrl(): string {
     return 'http://localhost:3000';
   }
 
-  // Production - stesso dominio
-  // Se frontend e backend sono sullo stesso server
-  if (hostname === '3.120.81.201') {
-    return `${protocol}//${hostname}:3000`;
-  }
-
-  // Production - dominio custom
-  // Se hai un dominio tipo resolvo.com
-  if (hostname.includes('resolvo')) {
-    return `${protocol}//api.${hostname}`;
-  }
-
-  // Default fallback
-  return 'http://localhost:3000';
+  // Production - auto-detect backend on same server
+  // Assumes backend runs on same hostname, port 3000
+  // For custom domains, use VITE_API_URL in .env
+  return `${protocol}//${hostname}:3000`;
 }
 
 export const API_BASE_URL = getApiBaseUrl();

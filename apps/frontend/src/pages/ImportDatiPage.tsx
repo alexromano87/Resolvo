@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Upload, FileUp, AlertCircle, CheckCircle2, Download } from 'lucide-react';
 import { CustomSelect } from '../components/ui/CustomSelect';
 import { BodyPortal } from '../components/ui/BodyPortal';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { importBackup, importCsv, type ImportCsvEntity, type BackupImportResult, type ImportResult } from '../api/import';
 
 type ResultState =
@@ -16,6 +17,10 @@ export function ImportDatiPage() {
   const [isImporting, setIsImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ResultState | null>(null);
+
+  // Confirmation dialogs
+  const [confirmBackupImport, setConfirmBackupImport] = useState(false);
+  const [confirmCsvImport, setConfirmCsvImport] = useState(false);
 
   const csvColumns: Record<ImportCsvEntity, string[]> = {
     clienti: [
@@ -63,6 +68,54 @@ export function ImportDatiPage() {
       'referente',
       'attivo',
     ],
+    users: [
+      'id',
+      'email',
+      'password',
+      'nome',
+      'cognome',
+      'ruolo',
+      'clienteId',
+      'studioId',
+      'attivo',
+    ],
+    avvocati: [
+      'id',
+      'attivo',
+      'studioId',
+      'nome',
+      'cognome',
+      'codiceFiscale',
+      'email',
+      'telefono',
+      'livelloAccessoPratiche',
+      'livelloPermessi',
+      'note',
+    ],
+    pratiche: [
+      'id',
+      'attivo',
+      'clienteId',
+      'studioId',
+      'debitoreId',
+      'numeroPratica',
+      'faseId',
+      'aperta',
+      'esito',
+      'capitale',
+      'importoRecuperatoCapitale',
+      'anticipazioni',
+      'importoRecuperatoAnticipazioni',
+      'compensiLegali',
+      'compensiLiquidati',
+      'interessi',
+      'interessiRecuperati',
+      'note',
+      'riferimentoCredito',
+      'dataAffidamento',
+      'dataChiusura',
+      'dataScadenza',
+    ],
   };
 
   const downloadCsvTemplate = (entity: ImportCsvEntity) => {
@@ -85,6 +138,7 @@ export function ImportDatiPage() {
     }
     setIsImporting(true);
     setError(null);
+    setConfirmBackupImport(false);
     try {
       const payload = await importBackup(backupFile);
       setResult({ type: 'backup', payload });
@@ -102,6 +156,7 @@ export function ImportDatiPage() {
     }
     setIsImporting(true);
     setError(null);
+    setConfirmCsvImport(false);
     try {
       const payload = await importCsv(csvEntity, csvFile);
       setResult({ type: 'csv', payload });
@@ -115,6 +170,9 @@ export function ImportDatiPage() {
   const csvOptions = [
     { value: 'clienti', label: 'Clienti' },
     { value: 'debitori', label: 'Debitori' },
+    { value: 'users', label: 'Utenti' },
+    { value: 'avvocati', label: 'Avvocati' },
+    { value: 'pratiche', label: 'Pratiche' },
   ];
 
   return (
@@ -125,8 +183,8 @@ export function ImportDatiPage() {
           Importazione Dati
         </h1>
         <p className="max-w-3xl text-sm text-slate-500 dark:text-slate-400">
-          Carica un backup JSON completo oppure importa clienti e debitori da CSV.
-          I record con lo stesso ID vengono sovrascritti, quelli non validi vengono ignorati.
+          Carica un backup JSON completo oppure importa clienti, debitori, utenti, avvocati e pratiche da CSV.
+          I record duplicati vengono ignorati automaticamente.
         </p>
       </div>
 
@@ -159,7 +217,7 @@ export function ImportDatiPage() {
           />
 
           <button
-            onClick={handleBackupImport}
+            onClick={() => setConfirmBackupImport(true)}
             disabled={isImporting}
             className="wow-button disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -176,7 +234,7 @@ export function ImportDatiPage() {
                 Import CSV
               </h2>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Importa solo clienti o debitori da un file CSV.
+                Importa clienti, debitori, utenti, avvocati o pratiche da file CSV.
               </p>
             </div>
           </div>
@@ -197,7 +255,7 @@ export function ImportDatiPage() {
           </div>
 
           <button
-            onClick={handleCsvImport}
+            onClick={() => setConfirmCsvImport(true)}
             disabled={isImporting}
             className="wow-button disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -210,7 +268,7 @@ export function ImportDatiPage() {
               Guida CSV
             </p>
             <p className="mt-1">
-              Colonne supportate (ordine libero). I record con lo stesso ID vengono sovrascritti.
+              Colonne supportate (ordine libero). I record duplicati vengono automaticamente ignorati.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               {csvColumns[csvEntity].map((col) => (
@@ -302,6 +360,30 @@ export function ImportDatiPage() {
         </div>
       </BodyPortal>
       )}
+
+      {/* Confirm Backup Import Dialog */}
+      <ConfirmDialog
+        isOpen={confirmBackupImport}
+        title="Conferma Importazione Backup"
+        message="Sei sicuro di voler importare questo backup? I record duplicati verranno ignorati automaticamente. L'operazione potrebbe richiedere alcuni minuti."
+        onConfirm={handleBackupImport}
+        onClose={() => setConfirmBackupImport(false)}
+        confirmText="Importa"
+        cancelText="Annulla"
+        variant="warning"
+      />
+
+      {/* Confirm CSV Import Dialog */}
+      <ConfirmDialog
+        isOpen={confirmCsvImport}
+        title="Conferma Importazione CSV"
+        message={`Sei sicuro di voler importare i dati da CSV? Verranno importati record di tipo "${csvEntity}". I record duplicati verranno ignorati automaticamente.`}
+        onConfirm={handleCsvImport}
+        onClose={() => setConfirmCsvImport(false)}
+        confirmText="Importa"
+        cancelText="Annulla"
+        variant="warning"
+      />
     </div>
   );
 }

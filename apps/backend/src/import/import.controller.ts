@@ -20,7 +20,6 @@ import { AuditLogService } from '../audit/audit-log.service';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { CurrentUserData } from '../auth/current-user.decorator';
 import { RateLimit } from '../common/rate-limit.decorator';
-import { RateLimitGuard } from '../common/rate-limit.guard';
 
 @Controller('import')
 @UseGuards(JwtAuthGuard, AdminGuard)
@@ -31,8 +30,7 @@ export class ImportController {
   ) {}
 
   @Post('backup')
-  @UseGuards(RateLimitGuard)
-  @RateLimit({ limit: 5, windowMs: 10 * 60 * 1000 })
+  @RateLimit({ limit: 5, windowMs: 60 * 60 * 1000 })  // 5 per hour
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(),
@@ -77,8 +75,7 @@ export class ImportController {
   }
 
   @Post('csv')
-  @UseGuards(RateLimitGuard)
-  @RateLimit({ limit: 10, windowMs: 10 * 60 * 1000 })
+  @RateLimit({ limit: 10, windowMs: 60 * 60 * 1000 })  // 10 per hour
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(),
@@ -98,11 +95,18 @@ export class ImportController {
       const result = await this.importService.importCsv(dto.entity, file.buffer);
 
       try {
+        let entityType: 'USER' | 'CLIENTE' | 'DEBITORE' | 'AVVOCATO' | 'PRATICA' | 'SYSTEM' = 'SYSTEM';
+        if (dto.entity === 'clienti') entityType = 'CLIENTE';
+        else if (dto.entity === 'debitori') entityType = 'DEBITORE';
+        else if (dto.entity === 'users') entityType = 'USER';
+        else if (dto.entity === 'avvocati') entityType = 'AVVOCATO';
+        else if (dto.entity === 'pratiche') entityType = 'PRATICA';
+
         await this.auditLogService.log({
           userId: user.id,
           studioId: user.studioId,
           action: 'IMPORT_DATA',
-          entityType: dto.entity === 'clienti' ? 'CLIENTE' : 'DEBITORE',
+          entityType,
           description: `Import CSV ${dto.entity}`,
           metadata: {
             filename: file.originalname,

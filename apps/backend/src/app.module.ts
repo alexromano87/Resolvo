@@ -20,9 +20,11 @@ import { AdminMaintenanceModule } from './admin/admin-maintenance.module';
 import { AuditLogModule } from './audit/audit-log.module';
 import { ExportModule } from './export/export.module';
 import { ImportModule } from './import/import.module';
+import { BackupModule } from './backup/backup.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { MonitoringModule } from './monitoring/monitoring.module';
 import { APP_GUARD } from '@nestjs/core';
-import { RateLimitGuard } from './common/rate-limit.guard';
+import { RedisRateLimitGuard } from './common/redis-rate-limit.guard';
 import { HealthController } from './health/health.controller';
 import { CacheService } from './common/cache.service';
 
@@ -81,13 +83,15 @@ import { CacheService } from './common/cache.service';
     NotificationsModule,
     ExportModule,
     ImportModule,
+    BackupModule,
+    MonitoringModule,
   ],
   controllers: [HealthController],
   providers: [
     CacheService,
     {
       provide: APP_GUARD,
-      useClass: RateLimitGuard,
+      useClass: RedisRateLimitGuard,
     },
   ],
   exports: [CacheService],

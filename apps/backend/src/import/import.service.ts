@@ -192,9 +192,64 @@ export class ImportService {
   }
 
   async importCsv(entity: ImportCsvEntity, buffer: Buffer): Promise<ImportResult> {
-    const expectedHeaders = entity === ImportCsvEntity.CLIENTI
-      ? Object.keys(this.clienteCsvMap())
-      : Object.keys(this.debitoreCsvMap());
+    let expectedHeaders: string[];
+    let csvMap: Record<string, string>;
+    let records: any[];
+    let requiredFields: string[];
+    let repo: Repository<any>;
+    let allowedFields: string[];
+    let uniqueFields: string[] = [];
+
+    switch (entity) {
+      case ImportCsvEntity.CLIENTI:
+        csvMap = this.clienteCsvMap();
+        expectedHeaders = Object.keys(csvMap);
+        requiredFields = ['ragioneSociale', 'email'];
+        repo = this.clientiRepo;
+        allowedFields = this.clienteFields();
+        uniqueFields = ['email'];
+        break;
+
+      case ImportCsvEntity.DEBITORI:
+        csvMap = this.debitoreCsvMap();
+        expectedHeaders = Object.keys(csvMap);
+        requiredFields = ['tipoSoggetto'];
+        repo = this.debitoriRepo;
+        allowedFields = this.debitoreFields();
+        uniqueFields = ['codiceFiscale'];
+        break;
+
+      case ImportCsvEntity.USERS:
+        csvMap = this.userCsvMap();
+        expectedHeaders = Object.keys(csvMap);
+        requiredFields = ['email', 'nome', 'cognome', 'ruolo'];
+        repo = this.usersRepo;
+        allowedFields = this.userFields();
+        uniqueFields = ['email'];
+        break;
+
+      case ImportCsvEntity.AVVOCATI:
+        csvMap = this.avvocatoCsvMap();
+        expectedHeaders = Object.keys(csvMap);
+        requiredFields = ['nome', 'cognome', 'email'];
+        repo = this.avvocatiRepo;
+        allowedFields = this.avvocatoFields();
+        uniqueFields = ['email'];
+        break;
+
+      case ImportCsvEntity.PRATICHE:
+        csvMap = this.praticaCsvMap();
+        expectedHeaders = Object.keys(csvMap);
+        requiredFields = ['clienteId', 'debitoreId'];
+        repo = this.praticheRepo;
+        allowedFields = this.praticaFields();
+        uniqueFields = ['numeroPratica'];
+        break;
+
+      default:
+        throw new Error(`Tipo entità non supportato: ${entity}`);
+    }
+
     const { delimiter, fromLine } = this.detectCsvLayout(buffer, expectedHeaders);
     const rows = parse(buffer.toString('utf-8'), {
       columns: true,
@@ -206,25 +261,14 @@ export class ImportService {
       relax_column_count: true,
     }) as Record<string, string>[];
 
-    const { records, requiredFields } =
-      entity === ImportCsvEntity.CLIENTI
-        ? {
-            records: rows.map((row) => this.normalizeCsvRow(row, this.clienteCsvMap())),
-            requiredFields: ['ragioneSociale', 'email'],
-          }
-        : {
-            records: rows.map((row) => this.normalizeCsvRow(row, this.debitoreCsvMap())),
-            requiredFields: ['tipoSoggetto'],
-          };
-
-    const repo = entity === ImportCsvEntity.CLIENTI ? this.clientiRepo : this.debitoriRepo;
-    const allowedFields = entity === ImportCsvEntity.CLIENTI ? this.clienteFields() : this.debitoreFields();
+    records = rows.map((row) => this.normalizeCsvRow(row, csvMap));
 
     return this.importRecords(repo, records, {
       allowedFields,
       requiredFields,
       rowOffset: 2, // header row
       coerce: true,
+      uniqueFields,
     });
   }
 
@@ -236,6 +280,7 @@ export class ImportService {
       requiredFields: string[];
       rowOffset: number;
       coerce?: boolean;
+      uniqueFields?: string[];
     },
   ): Promise<ImportResult> {
     const result: ImportResult = {
@@ -262,6 +307,33 @@ export class ImportService {
           reason: `Campi obbligatori mancanti: ${missing.join(', ')}`,
         });
         continue;
+      }
+
+      // Check for duplicates if uniqueFields are specified
+      if (options.uniqueFields && options.uniqueFields.length > 0) {
+        let isDuplicate = false;
+        for (const uniqueField of options.uniqueFields) {
+          const value = record[uniqueField];
+          if (value) {
+            try {
+              const existing = await repo.findOne({
+                where: { [uniqueField]: value },
+              });
+              if (existing) {
+                result.skipped += 1;
+                result.errors.push({
+                  row,
+                  reason: `Record già esistente (${uniqueField}: ${value})`,
+                });
+                isDuplicate = true;
+                break;
+              }
+            } catch (error: any) {
+              // Continue if check fails
+            }
+          }
+        }
+        if (isDuplicate) continue;
       }
 
       try {
@@ -425,6 +497,63 @@ export class ImportService {
       telefono: 'telefono',
       email: 'email',
       pec: 'pec',
+    };
+  }
+
+  private userCsvMap() {
+    return {
+      id: 'id',
+      email: 'email',
+      password: 'password',
+      nome: 'nome',
+      cognome: 'cognome',
+      ruolo: 'ruolo',
+      clienteid: 'clienteId',
+      studioid: 'studioId',
+      attivo: 'attivo',
+    };
+  }
+
+  private avvocatoCsvMap() {
+    return {
+      id: 'id',
+      attivo: 'attivo',
+      studioid: 'studioId',
+      nome: 'nome',
+      cognome: 'cognome',
+      codicefiscale: 'codiceFiscale',
+      email: 'email',
+      telefono: 'telefono',
+      livelloaccessopratiche: 'livelloAccessoPratiche',
+      livellopermessi: 'livelloPermessi',
+      note: 'note',
+    };
+  }
+
+  private praticaCsvMap() {
+    return {
+      id: 'id',
+      attivo: 'attivo',
+      clienteid: 'clienteId',
+      studioid: 'studioId',
+      debitoreid: 'debitoreId',
+      faseid: 'faseId',
+      aperta: 'aperta',
+      esito: 'esito',
+      capitale: 'capitale',
+      importorecuperatocapitale: 'importoRecuperatoCapitale',
+      anticipazioni: 'anticipazioni',
+      importorecuperatoanticipazioni: 'importoRecuperatoAnticipazioni',
+      compensilegali: 'compensiLegali',
+      compensiliquidati: 'compensiLiquidati',
+      interessi: 'interessi',
+      interessirecuperati: 'interessiRecuperati',
+      note: 'note',
+      riferimentocredito: 'riferimentoCredito',
+      dataaffidamento: 'dataAffidamento',
+      datachiusura: 'dataChiusura',
+      datascadenza: 'dataScadenza',
+      numeropratica: 'numeroPratica',
     };
   }
 

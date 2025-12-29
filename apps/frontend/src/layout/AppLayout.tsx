@@ -137,6 +137,8 @@ export function AppLayout({ children }: AppLayoutProps) {
     pageTitle = 'Esportazione Dati';
   } else if (location.pathname === '/admin/import-dati') {
     pageTitle = 'Importazione Dati';
+  } else if (location.pathname === '/admin/backup') {
+    pageTitle = 'Gestione Backup';
   }
 
 
@@ -992,6 +994,37 @@ export function AppLayout({ children }: AppLayoutProps) {
                             className="text-slate-400 group-hover:text-white"
                           />
                           <span>Importazione Dati</span>
+                        </>
+                      )}
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/admin/backup"
+                      className={({ isActive }) =>
+                        [
+                          'group flex items-center gap-3 rounded-2xl px-3 py-2 text-sm font-medium transition-colors',
+                          isActive
+                            ? 'bg-gradient-to-r from-indigo-500 via-indigo-600 to-indigo-800 text-white shadow-lg shadow-indigo-600/40'
+                            : 'text-slate-300 hover:bg-white/5 hover:text-white',
+                        ].join(' ')
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <span
+                            className={[
+                              'h-7 w-1 rounded-full bg-indigo-400 transition-all',
+                              isActive
+                                ? 'opacity-100 translate-x-0'
+                                : 'opacity-0 -translate-x-1 group-hover:opacity-80 group-hover:translate-x-0',
+                            ].join(' ')}
+                          />
+                          <RefreshCw
+                            size={18}
+                            className="text-slate-400 group-hover:text-white"
+                          />
+                          <span>Backup & Ripristino</span>
                         </>
                       )}
                     </NavLink>

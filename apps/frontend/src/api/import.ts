@@ -1,7 +1,7 @@
 // apps/frontend/src/api/import.ts
 import { API_BASE_URL } from './config';
 
-export type ImportCsvEntity = 'clienti' | 'debitori';
+export type ImportCsvEntity = 'clienti' | 'debitori' | 'users' | 'avvocati' | 'pratiche';
 
 export type ImportError = {
   row: number;

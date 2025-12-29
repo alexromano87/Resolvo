@@ -44,6 +44,7 @@ const AdminUsersPage = lazyNamed(() => import('./pages/AdminUsersPage'), 'AdminU
 const StudiPage = lazyNamed(() => import('./pages/StudiPage'), 'StudiPage');
 const ExportDatiPage = lazyNamed(() => import('./pages/ExportDatiPage'), 'ExportDatiPage');
 const ImportDatiPage = lazyNamed(() => import('./pages/ImportDatiPage'), 'ImportDatiPage');
+const BackupPage = lazyNamed(() => import('./pages/BackupPage'), 'default');
 const ImpostazioniPage = lazyNamed(
   () => import('./pages/ImpostazioniPage'),
   'ImpostazioniPage',
@@ -111,6 +112,7 @@ function App() {
                     <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
                     <Route path="/admin/export-dati" element={<ExportDatiPage />} />
                     <Route path="/admin/import-dati" element={<ImportDatiPage />} />
+                    <Route path="/admin/backup" element={<BackupPage />} />
                     <Route path="/impostazioni" element={<ImpostazioniPage />} />
                   </Routes>
                 </AppLayout>

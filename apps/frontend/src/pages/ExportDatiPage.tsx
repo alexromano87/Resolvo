@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Download, Database, FileDown, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { CustomSelect } from '../components/ui/CustomSelect';
 import { DateField } from '../components/ui/DateField';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { studiApi, type Studio } from '../api/studi';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -52,6 +53,10 @@ export function ExportDatiPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Confirmation dialogs
+  const [confirmExport, setConfirmExport] = useState(false);
+  const [confirmBackup, setConfirmBackup] = useState(false);
+
   useEffect(() => {
     loadStudi();
   }, []);
@@ -86,6 +91,7 @@ export function ExportDatiPage() {
     setExporting(true);
     setError(null);
     setSuccess(false);
+    setConfirmExport(false);
 
     try {
       const request: ExportRequest = {
@@ -118,6 +124,7 @@ export function ExportDatiPage() {
     setExporting(true);
     setError(null);
     setSuccess(false);
+    setConfirmBackup(false);
 
     try {
       const request: BackupStudioRequest = {
@@ -334,7 +341,7 @@ export function ExportDatiPage() {
 
           <div className="flex justify-end">
             <button
-              onClick={handleExportData}
+              onClick={() => setConfirmExport(true)}
               disabled={exporting}
               className="wow-button disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -407,7 +414,7 @@ export function ExportDatiPage() {
 
           <div className="flex justify-end">
             <button
-              onClick={handleBackupStudio}
+              onClick={() => setConfirmBackup(true)}
               disabled={exporting || !selectedStudioId}
               className="wow-button disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -417,6 +424,30 @@ export function ExportDatiPage() {
           </div>
         </div>
       )}
+
+      {/* Confirm Export Dialog */}
+      <ConfirmDialog
+        isOpen={confirmExport}
+        title="Conferma Esportazione"
+        message={`Sei sicuro di voler esportare i dati di "${ENTITY_LABELS[selectedEntity]}" in formato ${FORMAT_LABELS[selectedFormat]}?`}
+        onConfirm={handleExportData}
+        onClose={() => setConfirmExport(false)}
+        confirmText="Esporta"
+        cancelText="Annulla"
+        variant="info"
+      />
+
+      {/* Confirm Backup Studio Dialog */}
+      <ConfirmDialog
+        isOpen={confirmBackup}
+        title="Conferma Backup Studio"
+        message={`Sei sicuro di voler creare un backup completo dello studio${selectedStudioId ? ` "${studi.find(s => s.id === selectedStudioId)?.nome}"` : ''}? Il file includerà tutti i dati dello studio.`}
+        onConfirm={handleBackupStudio}
+        onClose={() => setConfirmBackup(false)}
+        confirmText="Crea Backup"
+        cancelText="Annulla"
+        variant="warning"
+      />
     </div>
   );
 }

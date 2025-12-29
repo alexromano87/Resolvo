@@ -19,7 +19,6 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { CurrentUserData } from '../auth/current-user.decorator';
 import { RateLimit } from '../common/rate-limit.decorator';
-import { RateLimitGuard } from '../common/rate-limit.guard';
 
 @Controller('tickets')
 @UseGuards(JwtAuthGuard)
@@ -27,7 +26,6 @@ export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) {}
 
   @Post()
-  @UseGuards(RateLimitGuard)
   @RateLimit({ limit: 20, windowMs: 10 * 60 * 1000 })
   create(@CurrentUser() user: CurrentUserData, @Body() createTicketDto: CreateTicketDto) {
     return this.ticketsService.createForUser(user, createTicketDto);
@@ -104,7 +102,6 @@ export class TicketsController {
   }
 
   @Post(':id/messaggi')
-  @UseGuards(RateLimitGuard)
   @RateLimit({ limit: 40, windowMs: 10 * 60 * 1000 })
   addMessaggio(
     @CurrentUser() user: CurrentUserData,

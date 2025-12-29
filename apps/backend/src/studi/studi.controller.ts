@@ -66,4 +66,22 @@ export class StudiController {
   async getStudioStats(@Param('id') id: string) {
     return this.studiService.getStudioStats(id);
   }
+
+  @Get('orphaned/records')
+  @UseGuards(AdminGuard)
+  async getOrphanedRecords() {
+    return this.studiService.getOrphanedRecords();
+  }
+
+  @Post('orphaned/assign')
+  @UseGuards(AdminGuard)
+  async assignOrphanedRecords(
+    @Body() dto: { entityType: string; recordIds: string[]; studioId: string },
+  ) {
+    return this.studiService.assignOrphanedRecords(
+      dto.entityType,
+      dto.recordIds,
+      dto.studioId,
+    );
+  }
 }
