@@ -23,6 +23,8 @@ import { ImportModule } from './import/import.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RateLimitGuard } from './common/rate-limit.guard';
+import { HealthController } from './health/health.controller';
+import { CacheService } from './common/cache.service';
 
 @Module({
   imports: [
@@ -80,12 +82,14 @@ import { RateLimitGuard } from './common/rate-limit.guard';
     ExportModule,
     ImportModule,
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [
+    CacheService,
     {
       provide: APP_GUARD,
       useClass: RateLimitGuard,
     },
   ],
+  exports: [CacheService],
 })
 export class AppModule {}

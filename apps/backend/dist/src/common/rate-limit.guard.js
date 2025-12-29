@@ -16,7 +16,7 @@ const rate_limit_decorator_1 = require("./rate-limit.decorator");
 let RateLimitGuard = class RateLimitGuard {
     reflector;
     store = new Map();
-    defaultLimit = 60;
+    defaultLimit = 1000;
     defaultWindowMs = 60_000;
     constructor(reflector) {
         this.reflector = reflector;
