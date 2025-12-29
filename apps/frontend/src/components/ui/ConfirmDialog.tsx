@@ -1,6 +1,7 @@
 // apps/frontend/src/components/ui/ConfirmDialog.tsx
 import React, { useEffect, useRef } from 'react';
 import { X, AlertTriangle, Info, HelpCircle } from 'lucide-react';
+import { BodyPortal } from './BodyPortal';
 
 export type ConfirmDialogVariant = 'danger' | 'warning' | 'info' | 'default';
 
@@ -94,21 +95,22 @@ export function ConfirmDialog({
   const Icon = style.icon;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/45 backdrop-blur-md transition-opacity"
-        onClick={loading ? undefined : onClose}
-      />
+    <BodyPortal>
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+        {/* Backdrop */}
+        <div
+          className="modal-overlay absolute inset-0 bg-black/45 backdrop-blur-md transition-opacity"
+          onClick={loading ? undefined : onClose}
+        />
 
-      {/* Dialog */}
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="dialog-title"
-        className="relative z-10 mx-4 w-full max-w-md transform rounded-3xl border border-white/70 bg-white/90 p-7 shadow-[0_28px_80px_rgba(15,23,42,0.24)] backdrop-blur-xl transition-all dark:border-slate-700 dark:bg-slate-900"
-      >
+        {/* Dialog */}
+        <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="dialog-title"
+          className="modal-content relative z-10 mx-4 w-full max-w-md transform rounded-3xl border border-white/70 bg-white/90 p-7 shadow-[0_28px_80px_rgba(15,23,42,0.24)] backdrop-blur-xl transition-all dark:border-slate-700 dark:bg-slate-900"
+        >
         {/* Close button */}
         <button
           type="button"
@@ -186,6 +188,7 @@ export function ConfirmDialog({
         </div>
       </div>
     </div>
+    </BodyPortal>
   );
 }
 
