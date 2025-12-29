@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import { CustomSelect } from '../components/ui/CustomSelect';
+import { DateField } from '../components/ui/DateField';
 import { CollaboratoriMultiSelect } from '../components/ui/CollaboratoriMultiSelect';
 import { useToast } from '../components/ui/ToastProvider';
 import { BodyPortal } from '../components/ui/BodyPortal';
@@ -1212,11 +1213,10 @@ export function PraticaDetailPage() {
                         onChange={(value) => updateNestedEditForm('opposizione', 'esito', value)}
                         className="text-xs"
                       />
-                      <input
-                        type="date"
+                      <DateField
                         value={editForm.opposizione?.dataEsito || ''}
-                        onChange={(e) => updateNestedEditForm('opposizione', 'dataEsito', e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+                        onChange={(value) => updateNestedEditForm('opposizione', 'dataEsito', value)}
+                        placeholder="Data esito opposizione"
                       />
                       <textarea
                         value={editForm.opposizione?.note || ''}
@@ -1262,11 +1262,10 @@ export function PraticaDetailPage() {
                         onChange={(value) => updateNestedEditForm('pignoramento', 'tipo', value)}
                         className="text-xs"
                       />
-                      <input
-                        type="date"
+                      <DateField
                         value={editForm.pignoramento?.dataNotifica || ''}
-                        onChange={(e) => updateNestedEditForm('pignoramento', 'dataNotifica', e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+                        onChange={(value) => updateNestedEditForm('pignoramento', 'dataNotifica', value)}
+                        placeholder="Data notifica pignoramento"
                       />
                       <CustomSelect
                         options={[
@@ -1731,11 +1730,10 @@ export function PraticaDetailPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Data *</label>
-                  <input
-                    type="date"
+                  <DateField
                     value={movimentoForm.data}
-                    onChange={(e) => setMovimentoForm((prev) => ({ ...prev, data: e.target.value }))}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-xs outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                    onChange={(value) => setMovimentoForm((prev) => ({ ...prev, data: value }))}
+                    placeholder="Data movimento"
                   />
                 </div>
                 <div>
@@ -2145,14 +2143,11 @@ export function PraticaDetailPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Data scadenza *</label>
-                    <input
-                      type="date"
+                    <DateField
                       value={typeof alertForm.dataScadenza === 'string' ? alertForm.dataScadenza : new Date(alertForm.dataScadenza).toISOString().split('T')[0]}
-                      onChange={(e) => setAlertForm({ ...alertForm, dataScadenza: e.target.value })}
-                      className={[
-                        'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100',
-                        alertFormSubmitted && !alertForm.dataScadenza ? '!border-rose-400 !focus:border-rose-500 !focus:ring-rose-200' : '',
-                      ].join(' ')}
+                      onChange={(value) => setAlertForm({ ...alertForm, dataScadenza: value })}
+                      placeholder="Data scadenza alert"
+                      className={alertFormSubmitted && !alertForm.dataScadenza ? 'border-rose-400' : ''}
                     />
                   </div>
                   <div>

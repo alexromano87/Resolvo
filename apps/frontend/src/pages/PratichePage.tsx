@@ -14,8 +14,10 @@ import {
   Edit2,
 } from 'lucide-react';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
+import { BodyPortal } from '../components/ui/BodyPortal';
 import { SearchableClienteSelect } from '../components/ui/SearchableClienteSelect';
 import { CustomSelect } from '../components/ui/CustomSelect';
+import { DateField } from '../components/ui/DateField';
 import { AvvocatiMultiSelect } from '../components/ui/AvvocatiMultiSelect';
 import { CollaboratoriMultiSelect } from '../components/ui/CollaboratoriMultiSelect';
 import {
@@ -590,15 +592,16 @@ export function PratichePage() {
 
       {/* New Pratica Modal */}
       {showNewForm && (
+        <BodyPortal>
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => {
               resetNewForm();
               setShowNewForm(false);
             }}
           />
-          <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="modal-content relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nuova pratica</h2>
               <button
@@ -708,11 +711,10 @@ export function PratichePage() {
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Data affidamento
                   </label>
-                  <input
-                    type="date"
+                  <DateField
                     value={newForm.dataAffidamento || ''}
-                    onChange={(e) => updateNewForm('dataAffidamento', e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                    onChange={(value) => updateNewForm('dataAffidamento', value)}
+                    placeholder="Seleziona data affidamento"
                   />
                 </div>
               </div>
@@ -752,13 +754,15 @@ export function PratichePage() {
             </div>
           </div>
         </div>
+      </BodyPortal>
       )}
 
       {/* Status Modification Modal */}
       {showStatusModal && selectedPratica && (
+        <BodyPortal>
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={handleCloseStatusModal}
           />
           <div className="relative z-10 w-full max-w-lg mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
@@ -841,6 +845,7 @@ export function PratichePage() {
             </div>
           </div>
         </div>
+      </BodyPortal>
       )}
 
       <ConfirmDialog />

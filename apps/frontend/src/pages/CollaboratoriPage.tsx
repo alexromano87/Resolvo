@@ -22,6 +22,7 @@ import {
 import type { User as Collaboratore } from '../api/auth';
 import { useToast } from '../components/ui/ToastProvider';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
+import { BodyPortal } from '../components/ui/BodyPortal';
 import { Pagination } from '../components/Pagination';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -426,9 +427,10 @@ export function CollaboratoriPage() {
       </div>
 
       {(showNewForm || isEditing || isViewing) && (
+        <BodyPortal>
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => {
               if (isViewing) {
                 handleCloseDetail();
@@ -439,7 +441,7 @@ export function CollaboratoriPage() {
               }
             }}
           />
-          <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="modal-content relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
                 {isViewing ? 'Dettaglio Collaboratore' : isEditing ? 'Modifica Collaboratore' : 'Nuovo Collaboratore'}
@@ -589,6 +591,7 @@ export function CollaboratoriPage() {
             )}
           </div>
         </div>
+      </BodyPortal>
       )}
     </div>
   );

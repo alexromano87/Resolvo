@@ -28,8 +28,10 @@ import {
 } from '../api/alerts';
 import { fetchPratiche, type Pratica, getDebitoreDisplayName } from '../api/pratiche';
 import { CustomSelect } from '../components/ui/CustomSelect';
+import { DateField } from '../components/ui/DateField';
 import { useToast } from '../components/ui/ToastProvider';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
+import { BodyPortal } from '../components/ui/BodyPortal';
 import { Pagination } from '../components/Pagination';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -565,15 +567,16 @@ export function AlertsPage() {
 
       {/* Modal Form */}
       {showModal && (
+        <BodyPortal>
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => {
               setShowModal(false);
               setSubmitAttempted(false);
             }}
           />
-          <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="modal-content relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
                 {isEditing ? 'Modifica Alert' : 'Nuovo Alert'}
@@ -687,15 +690,11 @@ export function AlertsPage() {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                   Data scadenza *
                 </label>
-                <input
-                  type="date"
+                <DateField
                   value={typeof formData.dataScadenza === 'string' ? formData.dataScadenza : ''}
-                  onChange={(e) => setFormData({ ...formData, dataScadenza: e.target.value })}
-                  required
-                  className={[
-                    'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100',
-                    submitAttempted && !formData.dataScadenza ? '!border-rose-400 !focus:border-rose-500 !focus:ring-rose-200' : '',
-                  ].join(' ')}
+                  onChange={(value) => setFormData({ ...formData, dataScadenza: value })}
+                  placeholder="Seleziona data scadenza"
+                  className={submitAttempted && !formData.dataScadenza ? 'border-rose-400' : ''}
                 />
               </div>
             </div>
@@ -717,13 +716,15 @@ export function AlertsPage() {
             </div>
           </div>
         </div>
+      </BodyPortal>
       )}
 
       {/* Chat Modal */}
       {showChatModal && selectedAlert && (
+        <BodyPortal>
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowChatModal(false)} />
-          <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowChatModal(false)} />
+          <div className="modal-content relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <div>
                 <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
@@ -814,6 +815,7 @@ export function AlertsPage() {
             )}
           </div>
         </div>
+      </BodyPortal>
       )}
 
       <ConfirmDialog />

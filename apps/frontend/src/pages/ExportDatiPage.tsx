@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Download, Database, FileDown, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { CustomSelect } from '../components/ui/CustomSelect';
+import { DateField } from '../components/ui/DateField';
 import { studiApi, type Studio } from '../api/studi';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -299,11 +300,10 @@ export function ExportDatiPage() {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Data Inizio
               </label>
-              <input
-                type="date"
+              <DateField
                 value={dataInizio}
-                onChange={(e) => setDataInizio(e.target.value)}
-                className="w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-2.5 text-sm text-slate-900 shadow-[0_12px_28px_rgba(15,23,42,0.12)] outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                onChange={setDataInizio}
+                placeholder="Seleziona data inizio"
               />
             </div>
 
@@ -311,11 +311,11 @@ export function ExportDatiPage() {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Data Fine
               </label>
-              <input
-                type="date"
+              <DateField
                 value={dataFine}
-                onChange={(e) => setDataFine(e.target.value)}
-                className="w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-2.5 text-sm text-slate-900 shadow-[0_12px_28px_rgba(15,23,42,0.12)] outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                onChange={setDataFine}
+                placeholder="Seleziona data fine"
+                min={dataInizio}
               />
             </div>
           </div>

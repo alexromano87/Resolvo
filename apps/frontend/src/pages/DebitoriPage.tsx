@@ -1,5 +1,6 @@
 // apps/frontend/src/pages/DebitoriPage.tsx
 import { useEffect, useState } from 'react';
+import { BodyPortal } from '../components/ui/BodyPortal';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   User,
@@ -499,9 +500,10 @@ export function DebitoriPage() {
 
       {/* MODAL NUOVO DEBITORE */}
       {showNewModal && (
+        <BodyPortal>
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCancelNewForm} />
-          <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCancelNewForm} />
+          <div className="modal-content relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Nuovo Debitore</h2>
               <button onClick={handleCancelNewForm} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
@@ -723,13 +725,15 @@ export function DebitoriPage() {
             </form>
           </div>
         </div>
+      </BodyPortal>
       )}
 
       {/* MODAL VISUALIZZA DEBITORE */}
       {showViewModal && selectedDebitore && (
+        <BodyPortal>
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseView} />
-          <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseView} />
+          <div className="modal-content relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
                 Dettaglio Debitore
@@ -940,13 +944,15 @@ export function DebitoriPage() {
             </div>
           </div>
         </div>
+      </BodyPortal>
       )}
 
       {/* MODAL MODIFICA DEBITORE */}
       {showEditModal && selectedDebitore && (
+        <BodyPortal>
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCancelEditing} />
-          <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCancelEditing} />
+          <div className="modal-content relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
                 Modifica Debitore
@@ -1163,6 +1169,7 @@ export function DebitoriPage() {
             </form>
           </div>
         </div>
+      </BodyPortal>
       )}
 
       <ConfirmDialog />

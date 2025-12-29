@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Upload, FileUp, AlertCircle, CheckCircle2, Download } from 'lucide-react';
 import { CustomSelect } from '../components/ui/CustomSelect';
+import { BodyPortal } from '../components/ui/BodyPortal';
 import { importBackup, importCsv, type ImportCsvEntity, type BackupImportResult, type ImportResult } from '../api/import';
 
 type ResultState =
@@ -236,6 +237,7 @@ export function ImportDatiPage() {
       </div>
 
       {result && (
+        <BodyPortal>
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
           <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center gap-2 text-indigo-600">
@@ -298,6 +300,7 @@ export function ImportDatiPage() {
             </div>
           </div>
         </div>
+      </BodyPortal>
       )}
     </div>
   );

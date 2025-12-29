@@ -26,6 +26,7 @@ import {
   updateConfigurazioneCondivisione,
 } from '../api/clienti';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
+import { BodyPortal } from '../components/ui/BodyPortal';
 import { Pagination } from '../components/Pagination';
 import { useToast } from '../components/ui/ToastProvider';
 import { useAuth } from '../contexts/AuthContext';
@@ -674,20 +675,21 @@ export function ClientiPage() {
 
       {/* MODAL NUOVO/MODIFICA/VISUALIZZA */}
       {(showNewForm || isEditing || isViewing) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => {
-              if (isViewing) {
-                handleCloseDetail();
-              } else {
-                setShowNewForm(false);
-                setIsEditing(false);
-                resetForm();
-              }
-            }}
-          />
-          <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+        <BodyPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => {
+                if (isViewing) {
+                  handleCloseDetail();
+                } else {
+                  setShowNewForm(false);
+                  setIsEditing(false);
+                  resetForm();
+                }
+              }}
+            />
+            <div className="modal-content relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
                 {isViewing ? 'Dettaglio Cliente' : isEditing ? 'Modifica Cliente' : 'Nuovo Cliente'}
@@ -964,12 +966,14 @@ export function ClientiPage() {
             )}
           </div>
         </div>
+        </BodyPortal>
       )}
 
       {/* SHARING MODAL */}
       {showSharingModal && sharingCliente && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="max-w-2xl w-full max-h-[90vh] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900 flex flex-col">
+        <BodyPortal>
+          <div className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="modal-content max-w-2xl w-full max-h-[90vh] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900 flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800/50">
               <div>
@@ -1205,6 +1209,7 @@ export function ClientiPage() {
             </div>
           </div>
         </div>
+        </BodyPortal>
       )}
 
       <ConfirmDialog />

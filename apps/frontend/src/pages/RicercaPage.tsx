@@ -1,5 +1,6 @@
 // apps/frontend/src/pages/RicercaPage.tsx
 import { useEffect, useState } from 'react';
+import { BodyPortal } from '../components/ui/BodyPortal';
 import {
   Search,
   ChevronRight,
@@ -1439,9 +1440,10 @@ export function RicercaPage() {
       />
 
       {isClienteModalOpen && selectedCliente && (
+        <BodyPortal>
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseClienteModal} />
-          <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseClienteModal} />
+          <div className="modal-content relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
                 Dettaglio Cliente
@@ -1521,16 +1523,18 @@ export function RicercaPage() {
             </div>
           </div>
         </div>
+        </BodyPortal>
       )}
 
       {/* Modale dettaglio pratica */}
       {isPraticaModalOpen && selectedPratica && (
+        <BodyPortal>
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={handleClosePraticaModal}
           />
-          <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="modal-content relative z-10 w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-3">
@@ -1744,12 +1748,14 @@ export function RicercaPage() {
             </div>
           </div>
         </div>
+        </BodyPortal>
       )}
 
       {/* Modale Dettaglio Ticket */}
       {isTicketModalOpen && selectedTicket && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <BodyPortal>
+        <div className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="modal-content bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
               <div className="flex-1">
@@ -1910,6 +1916,7 @@ export function RicercaPage() {
             </div>
           </div>
         </div>
+      </BodyPortal>
       )}
     </div>
   );

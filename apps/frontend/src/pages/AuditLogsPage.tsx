@@ -10,6 +10,7 @@ import {
 import { Download, FileText, AlertCircle, CheckCircle, XCircle, Filter, X } from 'lucide-react';
 import { Pagination } from '../components/Pagination';
 import { CustomSelect } from '../components/ui/CustomSelect';
+import { DateField } from '../components/ui/DateField';
 
 export default function AuditLogsPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
@@ -309,21 +310,20 @@ export default function AuditLogsPage() {
 
             <div>
               <label className="block text-sm font-medium mb-1">Data Inizio</label>
-              <input
-                type="date"
-                className="w-full p-2 border rounded"
+              <DateField
                 value={filters.startDate || ''}
-                onChange={(e) => handleFilterChange('startDate', e.target.value)}
+                onChange={(value) => handleFilterChange('startDate', value)}
+                placeholder="Seleziona data inizio"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-1">Data Fine</label>
-              <input
-                type="date"
-                className="w-full p-2 border rounded"
+              <DateField
                 value={filters.endDate || ''}
-                onChange={(e) => handleFilterChange('endDate', e.target.value)}
+                onChange={(value) => handleFilterChange('endDate', value)}
+                placeholder="Seleziona data fine"
+                min={filters.startDate}
               />
             </div>
 

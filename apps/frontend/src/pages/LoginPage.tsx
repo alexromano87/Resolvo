@@ -1,6 +1,7 @@
 // apps/frontend/src/pages/LoginPage.tsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { BodyPortal } from '../components/ui/BodyPortal';
 import { useAuth } from '../contexts/AuthContext';
 import { authApi, type LoginDto } from '../api/auth';
 import { useToast } from '../components/ui/ToastProvider';
@@ -305,6 +306,7 @@ const LoginPage: React.FC = () => {
       </div>
 
       {showInactivityModal && (
+        <BodyPortal>
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl border border-slate-200">
             <h3 className="text-lg font-bold text-slate-900">Sessione terminata</h3>
@@ -324,12 +326,14 @@ const LoginPage: React.FC = () => {
             </div>
           </div>
         </div>
+      </BodyPortal>
       )}
 
       {showRecoverModal && (
+        <BodyPortal>
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setShowRecoverModal(false)}
           />
           <div className="relative z-10 w-full max-w-sm mx-4 rounded-xl bg-white p-6 shadow-2xl border border-slate-200">
@@ -382,6 +386,7 @@ const LoginPage: React.FC = () => {
             </div>
           </div>
         </div>
+      </BodyPortal>
       )}
     </div>
   );

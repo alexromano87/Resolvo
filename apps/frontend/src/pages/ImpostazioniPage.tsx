@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Bell, LayoutGrid, ShieldCheck } from 'lucide-react';
+import { BodyPortal } from '../components/ui/BodyPortal';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../theme/ThemeProvider';
 import { studiApi } from '../api/studi';
@@ -515,8 +516,9 @@ export function ImpostazioniPage() {
       </div>
 
       {showPasswordModal && (
+        <BodyPortal>
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowPasswordModal(false)} />
+          <div className="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowPasswordModal(false)} />
           <div className="relative z-10 w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Modifica password</h2>
@@ -570,6 +572,7 @@ export function ImpostazioniPage() {
             </div>
           </div>
         </div>
+      </BodyPortal>
       )}
 
       <div className="flex items-center justify-end gap-2">
