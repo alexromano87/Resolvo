@@ -68,6 +68,7 @@ export class InitSchema1703797200000 implements MigrationInterface {
         lockoutUntil timestamp NULL DEFAULT NULL,
         refreshTokenHash varchar(255) DEFAULT NULL,
         refreshTokenExpiresAt timestamp NULL DEFAULT NULL,
+        lastLogin timestamp NULL DEFAULT NULL,
         settings json DEFAULT NULL,
         createdAt datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
         updatedAt datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
