@@ -15,6 +15,18 @@ import {
   type BackupStudioRequest,
 } from '../api/export';
 
+// Entità che richiedono la selezione dello studio (obbligatorio)
+const ENTITIES_REQUIRING_STUDIO: readonly ExportEntity[] = [
+  ExportEntity.PRATICHE,
+  ExportEntity.CLIENTI,
+  ExportEntity.DEBITORI,
+];
+
+// Entità che NON richiedono studio (USERS è globale)
+const ENTITIES_WITHOUT_STUDIO: readonly ExportEntity[] = [
+  ExportEntity.USERS,
+];
+
 export function ExportDatiPage() {
   const { token } = useAuth();
   const [studi, setStudi] = useState<Studio[]>([]);
@@ -43,6 +55,13 @@ export function ExportDatiPage() {
     loadStudi();
   }, []);
 
+  // Pulisci la selezione dello studio quando si seleziona USERS o altre entità senza studio
+  useEffect(() => {
+    if (ENTITIES_WITHOUT_STUDIO.includes(selectedEntity)) {
+      setSelectedStudioId('');
+    }
+  }, [selectedEntity]);
+
   const loadStudi = async () => {
     try {
       setLoadingStudi(true);
@@ -56,6 +75,13 @@ export function ExportDatiPage() {
   };
 
   const handleExportData = async () => {
+    // Validazione: verifica che lo studio sia selezionato se richiesto
+    const isStudioRequired = ENTITIES_REQUIRING_STUDIO.includes(selectedEntity);
+    if (isStudioRequired && !selectedStudioId) {
+      setError('Seleziona uno studio per questa tabella');
+      return;
+    }
+
     setExporting(true);
     setError(null);
     setSuccess(false);
@@ -128,6 +154,9 @@ export function ExportDatiPage() {
       sublabel: s.partitaIva,
     })),
   ];
+
+  const isStudioRequired = ENTITIES_REQUIRING_STUDIO.includes(selectedEntity);
+  const isStudioHidden = ENTITIES_WITHOUT_STUDIO.includes(selectedEntity);
 
   return (
     <div className="space-y-6 wow-stagger">
@@ -210,22 +239,6 @@ export function ExportDatiPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Studio Legale
-              </label>
-              <CustomSelect
-                options={studioOptions}
-                value={selectedStudioId}
-                onChange={setSelectedStudioId}
-                placeholder="Seleziona studio..."
-                loading={loadingStudi}
-              />
-              <p className="mt-1 text-xs text-slate-500">
-                Lascia vuoto per esportare da tutti gli studi
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Tabella *
               </label>
               <CustomSelect
@@ -235,6 +248,27 @@ export function ExportDatiPage() {
                 placeholder="Seleziona tabella..."
               />
             </div>
+
+            {!isStudioHidden && (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Studio Legale {isStudioRequired && '*'}
+                </label>
+                <CustomSelect
+                  options={studioOptions}
+                  value={selectedStudioId}
+                  onChange={setSelectedStudioId}
+                  placeholder="Seleziona studio..."
+                  loading={loadingStudi}
+                />
+                <p className="mt-1 text-xs text-slate-500">
+                  {isStudioRequired
+                    ? 'Seleziona uno studio per questa tabella'
+                    : 'Lascia vuoto per esportare da tutti gli studi'
+                  }
+                </p>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
