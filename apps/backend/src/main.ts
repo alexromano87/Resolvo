@@ -50,7 +50,9 @@ async function bootstrap() {
   const allowedOrigins = [
     'http://localhost:5173',           // Frontend dev Vite
     'http://localhost:3000',           // Frontend dev alternativo
+    'http://localhost',                // Frontend Docker (porta 80)
     'http://127.0.0.1:5173',          // Localhost alternativo
+    'http://127.0.0.1',               // Localhost alternativo (porta 80)
     configService.get<string>('FRONTEND_URL'), // Da .env se presente
   ];
 

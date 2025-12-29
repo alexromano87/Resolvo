@@ -32,6 +32,8 @@ const import_module_1 = require("./import/import.module");
 const notifications_module_1 = require("./notifications/notifications.module");
 const core_1 = require("@nestjs/core");
 const rate_limit_guard_1 = require("./common/rate-limit.guard");
+const health_controller_1 = require("./health/health.controller");
+const cache_service_1 = require("./common/cache.service");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -87,13 +89,15 @@ exports.AppModule = AppModule = __decorate([
             export_module_1.ExportModule,
             import_module_1.ImportModule,
         ],
-        controllers: [],
+        controllers: [health_controller_1.HealthController],
         providers: [
+            cache_service_1.CacheService,
             {
                 provide: core_1.APP_GUARD,
                 useClass: rate_limit_guard_1.RateLimitGuard,
             },
         ],
+        exports: [cache_service_1.CacheService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

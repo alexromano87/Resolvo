@@ -1,13 +1,9 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
-
-/**
- * Migrazione di bootstrap schema: crea tutte le tabelle principali.
- * GENERATA AUTOMATICAMENTE DALLE ENTITY - NON MODIFICARE MANUALMENTE
- */
-export class InitSchema1703797200000 implements MigrationInterface {
-
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.InitSchema1703797200000 = void 0;
+class InitSchema1703797200000 {
+    async up(queryRunner) {
+        await queryRunner.query(`
       SET FOREIGN_KEY_CHECKS = 0;
 
       -- Drop all tables if exist
@@ -443,10 +439,9 @@ export class InitSchema1703797200000 implements MigrationInterface {
 
       SET FOREIGN_KEY_CHECKS = 1;
     `);
-  }
-
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+    }
+    async down(queryRunner) {
+        await queryRunner.query(`
       SET FOREIGN_KEY_CHECKS = 0;
       DROP TABLE IF EXISTS pratiche_collaboratori;
       DROP TABLE IF EXISTS pratiche_avvocati;
@@ -467,5 +462,7 @@ export class InitSchema1703797200000 implements MigrationInterface {
       DROP TABLE IF EXISTS studi;
       SET FOREIGN_KEY_CHECKS = 1;
     `);
-  }
+    }
 }
+exports.InitSchema1703797200000 = InitSchema1703797200000;
+//# sourceMappingURL=1703797200000-init-schema.js.map

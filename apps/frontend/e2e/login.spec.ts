@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Login flow (mocked backend)', () => {
   test('effettua login e mostra dashboard', async ({ page }) => {
-    await page.route('**/auth/login', async (route) => {
+    await page.route('**/api/auth/login', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -20,7 +20,7 @@ test.describe('Login flow (mocked backend)', () => {
       });
     });
 
-    await page.route('**/auth/me', async (route) => {
+    await page.route('**/api/auth/me', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
