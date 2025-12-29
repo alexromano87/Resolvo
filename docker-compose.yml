@@ -75,6 +75,7 @@ services:
       # Uploads
       UPLOAD_DIR: /app/uploads
       MAX_FILE_SIZE: 10485760
+      SKIP_MIGRATIONS: "false"
 
       # Redis (opzionale)
       REDIS_HOST: redis

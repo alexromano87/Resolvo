@@ -193,7 +193,7 @@ cd ~/app/Resolvo
 docker exec -i resolvo-mysql mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS recupero_crediti;"
 
 # importa schema nel DB
-docker exec -i resolvo-mysql mysql -u root -p recupero_crediti < create-database-schema.sql
+docker exec -i resolvo-mysql mysql -u root -proot! recupero_crediti < create-database-schema.sql
 ```
 
 Verifica:

@@ -9,15 +9,15 @@ async function bootstrap() {
     try {
         console.log('🔐 Creazione utente admin...');
         const adminUser = await usersService.create({
-            email: 'admin@studio.it',
+            email: 'admin@resolvo.it',
             password: 'admin123',
             nome: 'Admin',
-            cognome: 'Studio',
+            cognome: 'Resolvo',
             ruolo: 'admin',
             clienteId: null,
         });
         console.log('✅ Utente admin creato con successo!');
-        console.log('📧 Email: admin@studio.it');
+        console.log('📧 Email: admin@resolvo.it');
         console.log('🔑 Password: admin123');
         console.log('⚠️  Cambia la password dopo il primo accesso!');
         console.log('\nDettagli utente:', {
@@ -31,7 +31,7 @@ async function bootstrap() {
     catch (error) {
         if (error.message?.includes('Email già registrata')) {
             console.log('ℹ️  Utente admin già esistente');
-            console.log('📧 Email: admin@studio.it');
+            console.log('📧 Email: admin@resolvo.it');
             console.log('🔑 Password: admin123 (se non è stata cambiata)');
         }
         else {

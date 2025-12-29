@@ -1,5 +1,7 @@
 import type { PlaywrightTestConfig } from '@playwright/test';
 
+const E2E_PORT = Number(process.env.E2E_PORT || 4173);
+
 const config: PlaywrightTestConfig = {
   testDir: './e2e',
   testMatch: /.*\.spec\.ts$/,
@@ -9,13 +11,13 @@ const config: PlaywrightTestConfig = {
   },
   retries: 0,
   use: {
-    baseURL: process.env.E2E_BASE_URL || 'http://127.0.0.1:4173',
+    baseURL: process.env.E2E_BASE_URL || `http://127.0.0.1:${E2E_PORT}`,
     headless: true,
     viewport: { width: 1280, height: 720 },
   },
   webServer: {
-    command: 'npm run dev -- --host --port 4173',
-    url: 'http://127.0.0.1:4173',
+    command: `npm run dev -- --host --port ${E2E_PORT}`,
+    url: `http://127.0.0.1:${E2E_PORT}`,
     reuseExistingServer: !process.env.CI,
     stdout: 'pipe',
     stderr: 'pipe',
